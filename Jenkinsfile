@@ -8,8 +8,8 @@ pipeline {
         SERVER_USER = "ubuntu"
 
         // SQL Server Configuration
-        SA_PASSWORD = "StrongPass123!"
-        DB_NAME = "cv_king_db"
+        SA_PASSWORD = "123321  "
+        DB_NAME = "JOB_DB"
 
         // JWT Configuration
         JWT_SECRET = "cv-king-super-secret-jwt-key-2024-secure"
