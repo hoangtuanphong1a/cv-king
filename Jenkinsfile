@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    triggers {
+        // Trigger khi có push lên branch main
+        githubPush()
+
+        // Hoặc poll SCM mỗi 2 phút (backup)
+        // pollSCM('H/2 * * * *')
+    }
+
     environment {
         REGISTRY = "docker.io/${DOCKER_USERNAME}"
         BACKEND_IMAGE_NAME = "cv-king-backend"
