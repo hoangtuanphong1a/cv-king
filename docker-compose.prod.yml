@@ -1,0 +1,96 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: cv-king-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: ${SA_PASSWORD}
+      MSSQL_PID: Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./sqlserver/init:/docker-entrypoint-initdb.d
+    networks:
+      - cv-king-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SA_PASSWORD} -Q 'SELECT 1'",
+        ]
+      start_period: 60s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2GB
+          cpus: "1.0"
+        reservations:
+          memory: 1GB
+          cpus: "0.5"
+    env_file:
+      - .env
+
+  backend:
+    image: ${DOCKER_REGISTRY}/${BACKEND_IMAGE_NAME}:latest
+    container_name: cv-king-backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: sqlserver
+      DB_PORT: 1433
+      DB_NAME: ${DB_NAME}
+      DB_USER: sa
+      DB_PASSWORD: ${SA_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 24h
+      PORT: 3003
+      APP_PORT: 3003
+      NODE_ENV: production
+    ports:
+      - "3004:3003"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - cv-king-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3003/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+        reservations:
+          memory: 512M
+          cpus: "0.5"
+    env_file:
+      - .env
+
+  frontend:
+    image: ${DOCKER_REGISTRY}/${FRONTEND_IMAGE_NAME}:latest
+    container_name: cv-king-frontend
+    restart: unless-stopped
+    ports:
+      - "3005:3000"
+    depends_on:
+      - backend
+    networks:
+      - cv-king-network
+
+    env_file:
+      - .env
+
+volumes:
+  sqlserver_data:
+
+networks:
+  cv-king-network:
+    driver: bridge
