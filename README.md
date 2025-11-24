@@ -2,6 +2,27 @@
 
 A full-stack job portal system built with NestJS, Next.js, and SQL Server.
 
+---
+
+## 🚀 CI/CD Pipelines
+
+This repository contains multiple Jenkins pipelines for different projects:
+
+### 📁 CV King (Node.js) - `Jenkinsfile`
+**Main job portal application**
+- Location: `d:/DuAnTotNghiep/cicd_devops`
+- Repository: `https://github.com/hoangtuanphong1a/cv-king.git`
+- Branch: `main`
+
+### 📁 LearnKing (.NET) - `Jenkinsfile.dotnet`
+**LMS (Learning Management System)**
+- Repository: `https://github.com/XT-xuantruong/learnking.server.git`
+- Branch: `master`
+- Tech Stack: .NET Core, SQL Server
+- Dockerfile: Custom .NET image
+- Docker Compose: `docker-compose.learnking.yml`
+- Environment: `.env.learnking.example`
+
 ## Docker Setup
 
 This project includes a properly configured Docker setup for production deployment.
