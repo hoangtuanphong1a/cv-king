@@ -52,17 +52,30 @@ pipeline {
                         echo "📦 Using Yarn for backend..."
                         # Install yarn if not available
                         if ! command -v yarn &> /dev/null; then
-                            echo "⚠️ Yarn not found, installing yarn globally..."
-                            npm install -g yarn
+                            echo "⚠️ Yarn not found, attempting to install via npm..."
+                            if command -v npm &> /dev/null; then
+                                npm install -g yarn
+                            else
+                                echo "❌ Neither yarn nor npm available. Please ensure Node.js is installed."
+                                exit 1
+                            fi
                         fi
                         yarn install --frozen-lockfile
                         yarn build
                     elif [ -f package-lock.json ]; then
                         echo "📦 Using NPM for backend..."
+                        if ! command -v npm &> /dev/null; then
+                            echo "❌ NPM not available. Please ensure Node.js is installed."
+                            exit 1
+                        fi
                         npm ci
                         npm run build
                     else
                         echo "📦 Fallback to NPM for backend..."
+                        if ! command -v npm &> /dev/null; then
+                            echo "❌ NPM not available. Please ensure Node.js is installed."
+                            exit 1
+                        fi
                         npm install
                         npm run build
                     fi
@@ -75,23 +88,41 @@ pipeline {
                     sh '''
                     if [ -f pnpm-lock.yaml ]; then
                         echo "📦 Using PNPM for frontend..."
-                        npm install -g pnpm
+                        if command -v npm &> /dev/null; then
+                            npm install -g pnpm
+                        else
+                            echo "❌ NPM not available. Please ensure Node.js is installed."
+                            exit 1
+                        fi
                         pnpm install --frozen-lockfile
                         pnpm build
                     elif [ -f yarn.lock ]; then
                         echo "📦 Using Yarn for frontend..."
                         if ! command -v yarn &> /dev/null; then
-                            echo "⚠️  Yarn not found, installing..."
-                            npm install -g yarn
+                            echo "⚠️ Yarn not found, attempting to install via npm..."
+                            if command -v npm &> /dev/null; then
+                                npm install -g yarn
+                            else
+                                echo "❌ Neither yarn nor npm available. Please ensure Node.js is installed."
+                                exit 1
+                            fi
                         fi
                         yarn install --frozen-lockfile
                         yarn build
                     elif [ -f package-lock.json ]; then
                         echo "📦 Using NPM for frontend..."
+                        if ! command -v npm &> /dev/null; then
+                            echo "❌ NPM not available. Please ensure Node.js is installed."
+                            exit 1
+                        fi
                         npm ci
                         npm run build
                     else
                         echo "📦 Fallback to NPM for frontend..."
+                        if ! command -v npm &> /dev/null; then
+                            echo "❌ NPM not available. Please ensure Node.js is installed."
+                            exit 1
+                        fi
                         npm install
                         npm run build
                     fi
