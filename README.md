@@ -1,6 +1,6 @@
-# CoffeeKing Restaurant Management System
+# CV King - Job Portal System
 
-A full-stack restaurant management system built with NestJS, Next.js, and MySQL.
+A full-stack job portal system built with NestJS, Next.js, and SQL Server.
 
 ## Docker Setup
 
@@ -15,13 +15,19 @@ This project includes a properly configured Docker setup for production deployme
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/hoangtuanphong1a/coffeeking.git
-   cd coffeeking
+   git clone https://github.com/hoangtuanphong1a/cv-king.git
+   cd cicd_devops
    ```
 
 2. **Configure environment variables**
    ```bash
-   cp .env .env.local  # Optional: for local overrides
+   # For development
+   cp backend/.env.example backend/.env
+   # Edit backend/.env with your database credentials
+
+   # For production deployment
+   cp .env.example .env
+   # Edit .env with your Docker registry and production settings
    ```
 
 3. **Build and start all services**
@@ -36,34 +42,31 @@ This project includes a properly configured Docker setup for production deployme
 
 ### Services
 
-- **MySQL Database** (port 3307): Database for the application
-- **Backend API** (port 3000): NestJS API server
-- **Frontend** (port 3001): Next.js web application
+- **SQL Server Database** (port 1433): Database for the application
+- **Backend API** (port 3004): NestJS API server
+- **Frontend** (port 3005): Next.js web application
 
 ### Environment Variables
 
-The following environment variables are configured in `.env`:
+The following environment variables are configured in `backend/.env`:
 
 ```env
 # Database Configuration
-DB_HOST=mysql
-DB_PORT=3306
-DB_NAME=restaurant_management
-DB_USER=TUANPHONG
-DB_PASSWORD=123321
+DB_TYPE=mssql
+DB_HOST=sqlserver
+DB_PORT=1433
+DB_USERNAME=sa
+DB_PASSWORD=your_password
+DB_NAME=cv_king_db
 
 # JWT Configuration
-JWT_SECRET=supersecretjwtkeyforproduction
-JWT_EXPIRES_IN=24h
+JWT_ACCESS_SECRET=your_access_token_secret_key
+JWT_REFRESH_SECRET=your_refresh_token_secret_key
+JWT_ACCESS_EXPIRATION_TIME=1h
+JWT_REFRESH_EXPIRATION_TIME=7d
 
-# MySQL Configuration
-MYSQL_ROOT_PASSWORD=123321
-MYSQL_DATABASE=restaurant_management
-MYSQL_USER=TUANPHONG
-MYSQL_PASSWORD=123321
-
-# Frontend Configuration
-NEXT_PUBLIC_API_URL=http://localhost:3000
+# App Configuration
+APP_PORT=3003
 ```
 
 ### Docker Commands
@@ -106,15 +109,24 @@ The Docker setup is optimized for production with:
 - Health checks for service dependencies
 - Environment variable configuration
 
+### CI/CD Pipeline
+
+This project includes a Jenkins pipeline for automated deployment:
+
+- **Build**: Docker images for backend and frontend
+- **Push**: Images to Docker Hub
+- **Deploy**: All services to production server
+- **Verify**: Health checks for all services
+
 ### Troubleshooting
 
-1. **Port conflicts**: Make sure ports 3000, 3001, and 3307 are available
-2. **Database connection**: Wait for MySQL health check to pass before starting other services
+1. **Port conflicts**: Make sure ports 1433, 3004, and 3005 are available
+2. **Database connection**: Wait for SQL Server health check to pass before starting other services
 3. **Build issues**: Clear Docker cache with `docker system prune -a`
 
 ### Architecture
 
-- **Backend**: NestJS with TypeScript, MikroORM, MySQL
+- **Backend**: NestJS with TypeScript, MikroORM, SQL Server
 - **Frontend**: Next.js with TypeScript, Tailwind CSS
-- **Database**: MySQL 8.0 with persistent volumes
+- **Database**: SQL Server 2022 with persistent volumes
 - **Networking**: Isolated Docker network for service communication

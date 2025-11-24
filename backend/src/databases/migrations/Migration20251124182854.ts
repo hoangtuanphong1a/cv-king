@@ -1,6 +1,6 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20251104135513 extends Migration {
+export class Migration20251124182854 extends Migration {
 
   override async up(): Promise<void> {
     this.addSql(`CREATE TABLE [BlogCategories] ([id] nvarchar(255) not null, [created_at] date not null, [updated_at] date null, [name] nvarchar(200) not null, CONSTRAINT [BlogCategories_pkey] PRIMARY KEY ([id]));`);
@@ -18,7 +18,7 @@ export class Migration20251104135513 extends Migration {
 
     this.addSql(`CREATE TABLE [BlogViews] ([id] nvarchar(255) not null, [created_at] date not null, [updated_at] date null, [blog_post_id] int not null, [viewer_user_id] int null, [session_id] nvarchar(255) null, [viewed_at] datetime2 not null CONSTRAINT [blogviews_viewed_at_default] DEFAULT SYSUTCDATETIME(), CONSTRAINT [BlogViews_pkey] PRIMARY KEY ([id]));`);
 
-    this.addSql(`CREATE TABLE [Companies] ([id] nvarchar(255) not null, [name] nvarchar(300) not null, [slug] nvarchar(300) null, [logo_url] nvarchar(1000) null, [banner_url] nvarchar(1000) null, [industry] nvarchar(200) null, [company_size] nvarchar(50) null, [website] nvarchar(500) null, [location] nvarchar(300) null, [description] text null, [benefits] nvarchar(max) null, [is_verified] bit not null CONSTRAINT [companies_is_verified_default] DEFAULT 0, CONSTRAINT [Companies_pkey] PRIMARY KEY ([id]));`);
+    this.addSql(`CREATE TABLE [Companies] ([id] nvarchar(255) not null, [created_at] date not null, [updated_at] date null, [name] nvarchar(255) not null, [slug] nvarchar(300) null, [logo_url] nvarchar(1000) null, [banner_url] nvarchar(1000) null, [industry] nvarchar(200) null, [company_size] nvarchar(50) null, [website] nvarchar(500) null, [location] nvarchar(300) null, [description] nvarchar(255) null, [benefits] nvarchar(max) null, [is_verified] bit not null CONSTRAINT [companies_is_verified_default] DEFAULT 0, CONSTRAINT [Companies_pkey] PRIMARY KEY ([id]));`);
 
     this.addSql(`CREATE TABLE [EmployerProfiles] ([id] nvarchar(255) not null, [created_at] date not null, [updated_at] date null, [user_id] nvarchar(200) null, [company] nvarchar(200) null, [title] nvarchar(200) null, [phone] nvarchar(50) null, CONSTRAINT [EmployerProfiles_pkey] PRIMARY KEY ([id]));`);
 

@@ -629,12 +629,12 @@
         },
         "name": {
           "name": "name",
-          "type": "nvarchar(300)",
+          "type": "nvarchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "length": 300
+          "length": 255
         },
         "slug": {
           "name": "slug",
@@ -701,12 +701,12 @@
         },
         "description": {
           "name": "description",
-          "type": "text",
+          "type": "nvarchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
-          "mappedType": "text"
+          "length": 255
         },
         "benefits": {
           "name": "benefits",
