@@ -3,6 +3,7 @@ import { JobCategory } from './entities/job-category.entity';
 import { Skill } from './entities/skill.entity';
 import { JobTag } from './entities/job-tag.entity';
 import { Company } from './entities/company.entity';
+import { Roles } from './entities/role.entity';
 import mikroOrmConfig from './config/mikro-orm.config';
 
 async function seed() {
@@ -10,6 +11,22 @@ async function seed() {
   const em = orm.em.fork();
 
   try {
+    // Seed Roles
+    const roles = [
+      { roleName: 'JobSeeker', description: 'Job seeker user role' },
+      { roleName: 'Employer', description: 'Employer user role' },
+      { roleName: 'Admin', description: 'Administrator user role' },
+    ];
+
+    for (const role of roles) {
+      const existing = await em.findOne(Roles, { roleName: role.roleName });
+      if (!existing) {
+        const newRole = em.create(Roles, role);
+        await em.persistAndFlush(newRole);
+        console.log(`Created role: ${role.roleName}`);
+      }
+    }
+
     // Seed Job Categories
     const jobCategories = [
       { Name: 'Technology' },
