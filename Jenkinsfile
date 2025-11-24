@@ -50,6 +50,11 @@ pipeline {
                     sh '''
                     if [ -f yarn.lock ]; then
                         echo "📦 Using Yarn for backend..."
+                        # Install yarn if not available
+                        if ! command -v yarn &> /dev/null; then
+                            echo "⚠️  Yarn not found, installing..."
+                            npm install -g yarn
+                        fi
                         yarn install --frozen-lockfile
                         yarn build
                     elif [ -f package-lock.json ]; then
@@ -70,10 +75,15 @@ pipeline {
                     sh '''
                     if [ -f pnpm-lock.yaml ]; then
                         echo "📦 Using PNPM for frontend..."
+                        npm install -g pnpm
                         pnpm install --frozen-lockfile
                         pnpm build
                     elif [ -f yarn.lock ]; then
                         echo "📦 Using Yarn for frontend..."
+                        if ! command -v yarn &> /dev/null; then
+                            echo "⚠️  Yarn not found, installing..."
+                            npm install -g yarn
+                        fi
                         yarn install --frozen-lockfile
                         yarn build
                     elif [ -f package-lock.json ]; then
