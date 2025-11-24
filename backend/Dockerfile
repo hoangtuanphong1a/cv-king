@@ -1,8 +1,6 @@
 FROM node:20-alpine AS builder
 
-# Build args for registry customization
 ARG NPM_CONFIG_REGISTRY=https://registry.npmmirror.com/
-ARG CACHE_BUST
 
 WORKDIR /app
 
@@ -10,11 +8,11 @@ WORKDIR /app
 RUN yarn config set registry ${NPM_CONFIG_REGISTRY} && \
     yarn config set network-timeout 600000 -g
 
-# Copy package files and yarn.lock for better Docker layer caching
+# Copy package files for better Docker layer caching
 COPY package*.json yarn.lock ./
 
 # Install all dependencies (including dev dependencies for building)
-RUN yarn install --frozen-lockfile --network-timeout 600000
+RUN yarn install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -42,7 +40,7 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001
 
 # Copy package files and production node_modules from builder
-COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/package*.json ./  
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 
@@ -57,8 +55,7 @@ USER nestjs
 
 # Environment variables
 ENV NODE_ENV=production \
-    PORT=3003 \
-    APP_PORT=3003
+    PORT=3003
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
