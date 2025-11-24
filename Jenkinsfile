@@ -9,8 +9,8 @@ pipeline {
         SERVER_USER = "ubuntu"
 
         // SQL Server Configuration
-        SA_PASSWORD = "123321"
-        DB_NAME = "JOB_DB"
+        SA_PASSWORD = "StrongPass123!"
+        DB_NAME = "cv_king_db"
 
         // JWT Configuration
         JWT_SECRET = "cv-king-super-secret-jwt-key-2024-secure"
@@ -31,7 +31,60 @@ pipeline {
             }
         }
 
-        /* === STAGE 2: BUILD DOCKER IMAGES === */
+        /* === STAGE 2: BUILD SOURCE CODE === */
+        stage('Build Source Code') {
+            steps {
+                echo "🔧 Bắt đầu build source code..."
+
+                // Build Backend
+                echo "📦 Build backend..."
+                dir('backend') {
+                    sh '''
+                    if [ -f yarn.lock ]; then
+                        echo "📦 Using Yarn for backend..."
+                        yarn install --frozen-lockfile
+                        yarn build
+                    elif [ -f package-lock.json ]; then
+                        echo "📦 Using NPM for backend..."
+                        npm ci
+                        npm run build
+                    else
+                        echo "📦 Fallback to NPM for backend..."
+                        npm install
+                        npm run build
+                    fi
+                    '''
+                }
+
+                // Build Frontend
+                echo "⚛️  Build frontend..."
+                dir('frontend') {
+                    sh '''
+                    if [ -f pnpm-lock.yaml ]; then
+                        echo "📦 Using PNPM for frontend..."
+                        pnpm install --frozen-lockfile
+                        pnpm build
+                    elif [ -f yarn.lock ]; then
+                        echo "📦 Using Yarn for frontend..."
+                        yarn install --frozen-lockfile
+                        yarn build
+                    elif [ -f package-lock.json ]; then
+                        echo "📦 Using NPM for frontend..."
+                        npm ci
+                        npm run build
+                    else
+                        echo "📦 Fallback to NPM for frontend..."
+                        npm install
+                        npm run build
+                    fi
+                    '''
+                }
+
+                echo "✅ Source code build hoàn tất."
+            }
+        }
+
+        /* === STAGE 3: BUILD DOCKER IMAGES === */
         stage('Docker Build & Push') {
             steps {
                 echo "🐳 Bắt đầu build Docker images..."

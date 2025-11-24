@@ -6,27 +6,23 @@ ARG CACHE_BUST
 
 WORKDIR /app
 
-# Optimize npm config
-RUN npm config set registry ${NPM_CONFIG_REGISTRY} && \
-    npm config set prefer-offline true && \
-    npm config set progress false && \
-    npm config set audit false && \
-    npm config set fund false && \
-    npm config set update-notifier false
+# Optimize yarn config
+RUN yarn config set registry ${NPM_CONFIG_REGISTRY} && \
+    yarn config set network-timeout 600000 -g
 
-# Copy package files for better Docker layer caching
-COPY package*.json ./
+# Copy package files and yarn.lock for better Docker layer caching
+COPY package*.json yarn.lock ./
 
 # Install all dependencies (including dev dependencies for building)
-RUN npm ci --no-audit --no-fund --prefer-offline --timeout=60000
+RUN yarn install --frozen-lockfile --network-timeout 600000
 
 # Copy source code
 COPY . .
 
 # Build application
-RUN npm run build && \
-    npm prune --production && \
-    npm cache clean --force
+RUN yarn build && \
+    yarn install --production=true --frozen-lockfile && \
+    yarn cache clean
 
 # ===== RUNTIME STAGE =====
 FROM node:20-alpine AS runtime
