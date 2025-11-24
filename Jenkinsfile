@@ -52,7 +52,7 @@ pipeline {
                         echo "📦 Using Yarn for backend..."
                         # Install yarn if not available
                         if ! command -v yarn &> /dev/null; then
-                            echo "⚠️  Yarn not found, installing..."
+                            echo "⚠️ Yarn not found, installing yarn globally..."
                             npm install -g yarn
                         fi
                         yarn install --frozen-lockfile
