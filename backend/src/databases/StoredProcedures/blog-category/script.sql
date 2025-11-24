@@ -1,0 +1,27 @@
+USE JOB_DB;
+GO
+
+CREATE OR ALTER PROCEDURE SP_GetAllBlogCategories AS
+SELECT * FROM BlogCategories ORDER BY Name;
+GO
+
+CREATE OR ALTER PROCEDURE SP_GetBlogCategoryById @Id UNIQUEIDENTIFIER AS
+SELECT * FROM BlogCategories WHERE id = @Id;
+GO
+
+CREATE OR ALTER PROCEDURE SP_InsertBlogCategory @Name NVARCHAR(200) AS
+BEGIN
+    INSERT INTO BlogCategories (id, Name, created_at, updated_at) 
+    VALUES (NEWID(), @Name, SYSDATETIMEOFFSET(), NULL);
+    
+    SELECT * FROM BlogCategories WHERE Name = @Name;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE SP_UpdateBlogCategory @Id UNIQUEIDENTIFIER, @Name NVARCHAR(200) AS
+UPDATE BlogCategories SET Name = @Name, updated_at = SYSDATETIMEOFFSET() WHERE id = @Id;
+GO
+
+CREATE OR ALTER PROCEDURE SP_DeleteBlogCategory @Id UNIQUEIDENTIFIER AS
+DELETE FROM BlogCategories WHERE id = @Id;
+GO

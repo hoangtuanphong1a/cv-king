@@ -1,0 +1,12 @@
+USE JOB_DB;
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_GetBlogTagById]
+    @Id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SELECT *
+    FROM dbo.BlogTags
+    WHERE id = @Id;
+END;
+GO

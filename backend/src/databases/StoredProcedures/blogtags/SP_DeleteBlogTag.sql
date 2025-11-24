@@ -1,0 +1,11 @@
+USE JOB_DB;
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_DeleteBlogTag]
+    @Id UNIQUEIDENTIFIER
+AS
+BEGIN
+
+    DELETE FROM BlogTags WHERE id = @Id;
+END;
+GO

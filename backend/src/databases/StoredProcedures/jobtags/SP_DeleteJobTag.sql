@@ -1,0 +1,11 @@
+USE JOB_DB;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.SP_DeleteJobTag
+    @JobTagId NVARCHAR(36)
+AS
+BEGIN
+
+    DELETE FROM dbo.JobTags WHERE id = @JobTagId;
+END;
+GO

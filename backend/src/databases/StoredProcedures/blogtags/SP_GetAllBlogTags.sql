@@ -1,0 +1,10 @@
+USE JOB_DB;
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[SP_GetAllBlogTags]
+AS
+BEGIN
+    SELECT *
+    FROM dbo.BlogTags
+END;
+GO
