@@ -13,7 +13,7 @@ pipeline {
         SERVER_USER = "root"
 
         // SQL Server Configuration
-        SA_PASSWORD = "123321  "    
+        SA_PASSWORD = "123321  "
         DB_NAME = "JOB_DB"
 
         // JWT Configuration
@@ -161,10 +161,10 @@ EOF
                     echo "⏳ Đợi health checks (SQL Server cần 1-2 phút để khởi động)..."
                     sleep 90
 
-                    echo "� Kiểm tra initial container status..."
+                    echo "📊 Kiểm tra initial container status..."
                     docker ps
 
-                    echo "�� Kiểm tra trạng thái services"
+                    echo "📊 Kiểm tra trạng thái services"
                     docker ps
 
                     echo "🧽 Dọn dẹp image không còn dùng"
@@ -173,6 +173,7 @@ EOF
                     echo "✅ Deploy thành công!"
 REMOTE_EOF
                     '''
+                  }
                 }
             }
         }
@@ -205,7 +206,7 @@ REMOTE_EOF
                     fi
 
                     echo "📊 Final container status:"
-                    docker ps --format "table {{.Names}}\\t{{.Status}}\\t{{.Ports}}"
+                    docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
                     echo "🎉 All services verified successfully!"
 REMOTE_VERIFY
