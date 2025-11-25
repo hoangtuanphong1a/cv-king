@@ -10,7 +10,7 @@ pipeline {
         BACKEND_IMAGE_NAME = "cv-king-backend"
         FRONTEND_IMAGE_NAME = "cv-king-frontend"
         SERVER_HOST = "206.189.88.56"
-        SERVER_USER = "ubuntu"
+        SERVER_USER = "root"
 
         // SQL Server Configuration
         SA_PASSWORD = "123321  "    
