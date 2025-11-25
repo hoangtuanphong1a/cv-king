@@ -13,7 +13,7 @@ pipeline {
         SERVER_USER = "root"
 
         // SQL Server Configuration
-        SA_PASSWORD = "123321"
+        SA_PASSWORD = "StrongPass123!"
         DB_NAME = "JOB_DB"
 
         // JWT Configuration
@@ -46,7 +46,7 @@ pipeline {
                     REGISTRY=docker.io/$DOCKER_USER
 
                     echo "🚧 Build backend..."
-                    docker build --build-arg CACHE_BUST=${BUILD_NUMBER} -f backend/Dockerfile -t ${REGISTRY}/${BACKEND_IMAGE_NAME}:latest ./backend
+                    docker build --no-cache --build-arg CACHE_BUST=${BUILD_NUMBER} -f backend/Dockerfile -t ${REGISTRY}/${BACKEND_IMAGE_NAME}:latest ./backend
 
                     echo "🚧 Build frontend..."
                     docker build -f frontend/Dockerfile -t ${REGISTRY}/${FRONTEND_IMAGE_NAME}:latest ./frontend
