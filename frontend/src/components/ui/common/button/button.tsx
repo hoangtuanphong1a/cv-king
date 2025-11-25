@@ -129,16 +129,12 @@ const StyledButton = styled(MuiButton, {
         borderColor: theme.palette.error.main,
         boxShadow: `0 0 0 3px ${theme.palette.error.light}40`,
     },
-    "& svg": {
-        pointerEvents: "none",
-        flexShrink: 0,
-    },
     ...buttonVariants.variant[variant as keyof typeof buttonVariants.variant],
     ...buttonVariants.size[size as keyof typeof buttonVariants.size],
 }));
 
 // Định nghĩa props cho Button
-interface ButtonProps extends MuiButtonProps {
+interface ButtonProps extends Omit<MuiButtonProps, 'variant' | 'size'> {
     variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
     size?: "default" | "sm" | "lg" | "icon";
 }

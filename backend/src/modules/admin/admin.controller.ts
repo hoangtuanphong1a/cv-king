@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Put, ParseUUIDPipe, ValidationPipe } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { UsersService } from '@modules/users/users.service';
-import { Roless } from '@modules/auth/guards/roles.decorator';
+import { Roles as RolesDecorator } from '@modules/auth/guards/roles.decorator';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { ApiResponse } from '@common/interfaces/api-response.interface';
@@ -23,7 +23,7 @@ import { Company } from '@entities/company.entity';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roless('Admin')
+@RolesDecorator('Admin')
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,

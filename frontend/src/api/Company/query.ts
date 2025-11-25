@@ -26,11 +26,14 @@ export const useCompaniesQuery = () =>
     queryFn: getCompaniesRequest,
   });
 
-export const useCompanyByIdQuery = (id?: string) =>
+export const useCompanyByIdQuery = (
+  id?: string,
+  options?: { enabled?: boolean }
+) =>
   useQuery<CompanyResponse>({
     queryKey: CompanyQueryKey.detail(id || "unknown"),
     queryFn: () => getCompanyByIdRequest(id as string),
-    enabled: !!id,
+    enabled: options?.enabled !== undefined ? options.enabled : !!id,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
   });

@@ -4,6 +4,19 @@ import {
     JobApplicationResponse,
     JobApplicationUpdateRequest,
 } from "./type";
+
+interface RawApplicationData {
+    ApplicationId: string;
+    JobId: string;
+    job_seeker_id: string;
+    ApplicationStatus: string;
+    display_name: string;
+    email: string;
+    JobTitle: string;
+    appliedAt: string;
+    CompanyId: string;
+    CompanyName: string;
+}
 import httpInstance, { getSuccessResponse } from "@/api/axios";
 import {
     JobApplicationCreateRequestSchema,
@@ -37,8 +50,8 @@ export async function getApplicationsByCompanyIdRequest(
     id: string
 ): Promise<JobApplicationResponse[]> {
     const res = await httpInstance.get(`/job-applications/company/${id}`);
-    const data = res.data.data;
-    const normalized = data.map((a: any) => ({
+    const data: RawApplicationData[] = res.data.data;
+    const normalized = data.map((a: RawApplicationData) => ({
         id: a.ApplicationId,
         jobId: a.JobId,
         jobSeekerId: a.job_seeker_id,

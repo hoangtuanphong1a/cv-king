@@ -1,13 +1,13 @@
 "use client";
 // import { Card, CardContent, CardHeader, CardTitle } from '../../common/card/card';
 import {
-    Edit,
-    Eye,
-    Calendar,
-   Search,
-   AlertCircle,
-   CheckCircle,
-} from 'lucide-react';
+  Edit,
+  Eye,
+  Calendar,
+  Search,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -20,33 +20,47 @@ import {
   CircularProgress,
 } from "@mui/material";
 // import { Avatar , AvatarImage , AvatarFallback} from '../../common/avatar/avatar';
-// import { Button } from '../../common/button/button';
-import { useApp } from '@/components/AppContext';
-import { XCircle } from 'lucide-react';
-import { Grid } from '@mui/material';
-import { useMyProfileQuery } from '@/api/user/query';
-import { useJobApplicationsByJobSeekerQuery } from '@/api/JobApplication/query';
-const MyApplication = ()=> {
+// import { Button } from '../../common/button';
+import { useApp } from "@/components/AppContext";
+import { XCircle } from "lucide-react";
+import { useMyProfileQuery } from "@/api/user/query";
+import { useJobApplicationsByJobSeekerQuery } from "@/api/JobApplication/query";
 
-    const { navigateTo } = useApp();
-    
-    const { data: userProfile, isLoading: loadingProfile } = useMyProfileQuery();
+type Application = {
+  id: string;
+  jobId?: string;
+  status: string;
+  coverLetter?: string | null;
+  appliedAt?: string | Date | null;
+};
 
-    const { data: applications = [], isLoading: loadingApplications, error } = useJobApplicationsByJobSeekerQuery(userProfile?.id);
-    
-    if (loadingProfile || loadingApplications) {
-        return (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
-            <CircularProgress />
-            </Box>
-        );
-    }
+const MyApplication = () => {
+  const { navigateTo } = useApp();
 
- const handleViewJob = (application: any) => {
+  const { data: userProfile, isLoading: loadingProfile } = useMyProfileQuery();
+
+  const {
+    data: applications = [],
+    isLoading: loadingApplications,
+    error,
+  } = useJobApplicationsByJobSeekerQuery(userProfile?.id);
+
+  if (loadingProfile || loadingApplications) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const handleViewJob = (application: Application) => {
     navigateTo("job-detail", { jobId: application.jobId });
   };
- const getStatusChip = (status: string) => {
-    const styles: Record<string, any> = {
+  const getStatusChip = (status: string) => {
+    const styles: Record<
+      string,
+      { bg: string; color: string; icon: React.ReactElement; label: string }
+    > = {
       Pending: {
         bg: "#FEF3C7",
         color: "#92400E",
@@ -78,9 +92,9 @@ const MyApplication = ()=> {
       color: "#374151",
       icon: <AlertCircle size={16} color="#374151" />,
       label: status,
-     };
-     
-     return (
+    };
+
+    return (
       <Chip
         icon={cfg.icon}
         label={cfg.label}
@@ -94,9 +108,9 @@ const MyApplication = ()=> {
         }}
       />
     );
-    };
-    
-    if (error) {
+  };
+
+  if (error) {
     return (
       <Typography color="error" textAlign="center" sx={{ mt: 5 }}>
         Lỗi khi tải dữ liệu: {(error as Error).message}
@@ -104,8 +118,10 @@ const MyApplication = ()=> {
     );
   }
 
-    return (
-    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 4 }}>
+  return (
+    <Box
+      sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 4 }}
+    >
       {/* Header */}
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" fontWeight={600}>
@@ -121,60 +137,69 @@ const MyApplication = ()=> {
       </Stack>
 
       {/* Summary Cards */}
-      <Grid container spacing={2} mb={2}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent sx={{ textAlign: "center", py: 4 }}>
-              <Typography variant="h4" color="primary">
-                {applications.length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Total Applications
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent sx={{ textAlign: "center", py: 4 }}>
-              <Typography variant="h4" sx={{ color: "#CA8A04" }}>
-                {applications.filter((a) => a.status === "Pending").length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Pending
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent sx={{ textAlign: "center", py: 4 }}>
-              <Typography variant="h4" sx={{ color: "#2563EB" }}>
-                {applications.filter((a) => a.status === "Interview").length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Interview
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent sx={{ textAlign: "center", py: 4 }}>
-              <Typography variant="h4" sx={{ color: "#16A34A" }}>
-                {applications.filter((a) => a.status === "Hired").length}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Hired
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "1fr 1fr",
+            md: "1fr 1fr 1fr 1fr",
+          },
+          gap: 2,
+          mb: 2,
+        }}
+      >
+        <Card>
+          <CardContent sx={{ textAlign: "center", py: 4 }}>
+            <Typography variant="h4" color="primary">
+              {applications.length}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Total Applications
+            </Typography>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent sx={{ textAlign: "center", py: 4 }}>
+            <Typography variant="h4" sx={{ color: "#CA8A04" }}>
+              {applications.filter((a) => a.status === "Pending").length}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Pending
+            </Typography>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent sx={{ textAlign: "center", py: 4 }}>
+            <Typography variant="h4" sx={{ color: "#2563EB" }}>
+              {applications.filter((a) => a.status === "Interview").length}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Interview
+            </Typography>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent sx={{ textAlign: "center", py: 4 }}>
+            <Typography variant="h4" sx={{ color: "#16A34A" }}>
+              {applications.filter((a) => a.status === "Hired").length}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Hired
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
 
       {/* Application List */}
       {applications.length === 0 ? (
-        <Typography variant="body1" textAlign="center" color="text.secondary" mt={4}>
+        <Typography
+          variant="body1"
+          textAlign="center"
+          color="text.secondary"
+          mt={4}
+        >
+          {/* eslint-disable-next-line react/no-unescaped-entities */}
           You haven't applied for any jobs yet.
         </Typography>
       ) : (
@@ -184,7 +209,7 @@ const MyApplication = ()=> {
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" spacing={2} alignItems="flex-start">
                   <Avatar sx={{ width: 56, height: 56 }}>
-                    {application.jobId.charAt(0)}
+                    {application.jobId ? application.jobId.charAt(0) : "J"}
                   </Avatar>
 
                   <Box flex={1}>
@@ -208,7 +233,8 @@ const MyApplication = ()=> {
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           Cover Letter:{" "}
-                          {application.coverLetter || "No cover letter provided"}
+                          {application.coverLetter ||
+                            "No cover letter provided"}
                         </Typography>
                       </Box>
                       {getStatusChip(application.status)}
@@ -225,7 +251,10 @@ const MyApplication = ()=> {
                       <Box display="flex" alignItems="center">
                         <Calendar size={16} style={{ marginRight: 4 }} />
                         Applied:{" "}
-                        {new Date(application.appliedAt).toLocaleDateString()}
+                        {application.appliedAt
+                          ? new Date(application.appliedAt).toLocaleDateString()
+                          : "N/A"
+                        }
                       </Box>
                     </Stack>
 
@@ -237,16 +266,16 @@ const MyApplication = ()=> {
                         onClick={() => handleViewJob(application)}
                       >
                         View Job
+                      </Button>
+                      {application.status === "Pending" && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<Edit size={16} />}
+                        >
+                          Update Application
                         </Button>
-                        {application.status === "Pending" && (
-                            <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<Edit size={16} />}
-                            >
-                            Update Application
-                            </Button>
-                      )}       
+                      )}
                     </Stack>
                   </Box>
                 </Stack>

@@ -1,6 +1,6 @@
 // card.tsx
 import * as React from "react";
-import { Card as MuiCard, CardHeader as MuiCardHeader, CardContent as MuiCardContent, CardActions as MuiCardActions, Typography } from "@mui/material";
+import { Card as MuiCard, CardHeader as MuiCardHeader, CardContent as MuiCardContent, CardActions as MuiCardActions, Typography, Box } from "@mui/material";
 import { cn } from "@/lib/utils"; // Giả sử bạn vẫn giữ hàm cn để nối className
 
 // Component Card
@@ -78,7 +78,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"p">) {
 // Component CardAction
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div
+    <Box
       className={cn(className)}
       sx={{
         gridColumnStart: 2, // Ánh xạ col-start-2

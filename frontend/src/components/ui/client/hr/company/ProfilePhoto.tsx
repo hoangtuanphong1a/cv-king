@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import Image from "next/image";
 const ProfilePhoto = () => {
     const fileRef = useRef<HTMLInputElement>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -20,7 +21,7 @@ return (
                 <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-xl overflow-hidden">
                     {preview ? (
                         // avatar preview
-                        <img src={preview} alt="avatar" className="w-full h-full object-cover" />
+                        <Image src={preview} alt="avatar" fill className="object-cover" />
                     ) : (
                         "a"
                     )}

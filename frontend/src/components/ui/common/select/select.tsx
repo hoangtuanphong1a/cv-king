@@ -4,7 +4,6 @@ import {
   Select as MUISelect,
   MenuItem,
   FormControl,
-  InputLabel,
   ListSubheader,
   Divider,
   SelectProps as MUISelectProps,
@@ -143,8 +142,8 @@ interface SelectGroupProps {
 
 // Context để share state
 const SelectContext = React.createContext<{
-  value: any;
-  onValueChange: (value: any) => void;
+  value: string | number;
+  onValueChange: (value: string | number) => void;
   placeholder?: string;
 }>({
   value: '',
@@ -152,20 +151,22 @@ const SelectContext = React.createContext<{
 });
 
 // Main Components
-function Select({ children, value, onSelectionChange, ...props }: SelectProps & {
-  onSelectionChange?: (value: any) => void;
+function Select({ children, value, onSelectionChange }: SelectProps & {
+  onSelectionChange?: (value: string | number) => void;
 }) {
-  const [internalValue, setInternalValue] = React.useState(value || '');
+  const [internalValue, setInternalValue] = React.useState<string | number>(() => {
+    if (value === undefined || value === null) return '';
+    return typeof value === 'string' || typeof value === 'number' ? value : '';
+  });
   
-  const handleChange = (event: any) => {
-    const newValue = event.target.value;
+  const handleChange = (newValue: string | number) => {
     setInternalValue(newValue);
     onSelectionChange?.(newValue);
   };
 
   return (
     <SelectContext.Provider value={{
-      value: value || internalValue,
+      value: (value as string | number) || internalValue,
       onValueChange: handleChange,
     }}>
       <div data-slot="select">
@@ -197,13 +198,13 @@ function SelectTrigger({
   children, 
   placeholder,
   ...props 
-}: SelectTriggerProps & MUISelectProps) {
+}: SelectTriggerProps & Omit<MUISelectProps, 'size'>) {
   const { value, onValueChange } = React.useContext(SelectContext);
   
   // Extract SelectContent from children to get menu items
   const selectContent = React.Children.toArray(children).find(
     child => React.isValidElement(child) && child.type === SelectContent
-  );
+  ) as React.ReactElement<SelectContentProps> | undefined;
 
   return (
     <StyledFormControl size={size === "sm" ? "small" : "medium"}>
@@ -211,7 +212,7 @@ function SelectTrigger({
         data-slot="select-trigger"
         data-size={size}
         value={value}
-        onChange={onValueChange}
+        onChange={(e) => onValueChange(e.target.value as string | number)}
         displayEmpty
         className={className}
         IconComponent={ChevronDownIcon}
@@ -219,19 +220,17 @@ function SelectTrigger({
           if (!selected) {
             return <span style={{ opacity: 0.7 }}>{placeholder}</span>;
           }
-          return selected;
+          return String(selected);
         }}
         {...props}
       >
-        {selectContent && React.isValidElement(selectContent) 
-          ? selectContent.props.children 
-          : null}
+        {selectContent?.props.children || null}
       </MUISelect>
     </StyledFormControl>
   );
 }
 
-function SelectContent({ className, children, position }: SelectContentProps) {
+function SelectContent({ children }: SelectContentProps) {
   // This is just a wrapper - actual content is rendered by SelectTrigger
   return <div data-slot="select-content">{children}</div>;
 }

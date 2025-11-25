@@ -1,15 +1,11 @@
 import instance, { getSuccessResponse } from '../axios';
-// import type { UserResponseData } from '../user/type';
 import type {
-  ForgotPasswordRequest,
   LoginRequest,
   LoginResponse,
   RegisterEmployerRequest,
   RegisterEmployerResponse,
   RegisterRequest,
   RegisterResponse,
-  ResetPasswordRequest,
-  ResetPasswordTokenParam,
   // SocialLoginRequest,
 } from './type';
 

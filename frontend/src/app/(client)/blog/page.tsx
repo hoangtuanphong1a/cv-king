@@ -128,7 +128,7 @@ const BlogPage = () => {
             return +new Date(b.publishDate) - +new Date(a.publishDate);
         }
       });
-  }, [searchTerm, selectedCategory, sortBy]);
+  }, [searchTerm, selectedCategory, sortBy, blogArticles]);
 
 
 

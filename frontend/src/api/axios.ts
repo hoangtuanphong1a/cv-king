@@ -1,4 +1,3 @@
-import { env } from '@/lib/env';
 import { ROUTES } from '@/lib/routes';
 import { useAuthStore } from '@/stores/authStore';
 import type { PaginatedResponse, SuccessResponse } from '@/types';

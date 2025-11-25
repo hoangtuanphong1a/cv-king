@@ -133,6 +133,12 @@ export const mockJobs: Job[] = [
       id: 'comp1',
       name: 'TechVision Inc.',
       logo: 'https://images.unsplash.com/photo-1746046936818-8d432ebd3d0e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWNoJTIwY29tcGFueSUyMGxvZ28lMjBtb2Rlcm58ZW58MXx8fHwxNzU4MzczMTM0fDA&ixlib=rb-4.1.0&q=80&w=200',
+      description: 'Pioneering technology solutions for tomorrow\'s challenges',
+      industry: 'Technology',
+      size: '500-1000 employees',
+      website: 'techvision.com',
+      location: 'San Francisco, CA',
+      founded: 2018,
       rating: 4.8,
       reviewCount: 324
     }
@@ -173,6 +179,12 @@ export const mockJobs: Job[] = [
       id: 'comp2',
       name: 'Creative Studio Pro',
       logo: 'https://images.unsplash.com/photo-1516542076529-1ea3854896f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjcmVhdGl2ZSUyMGFnZW5jeSUyMHdvcmtzcGFjZXxlbnwxfHx8fDE3NTgzODgzNTZ8MA&ixlib=rb-4.1.0&q=80&w=200',
+      description: 'Award-winning design agency creating exceptional digital experiences',
+      industry: 'Design & Creative',
+      size: '50-100 employees',
+      website: 'creativestudiopro.com',
+      location: 'New York, NY',
+      founded: 2015,
       rating: 4.6,
       reviewCount: 189
     }
@@ -213,6 +225,12 @@ export const mockJobs: Job[] = [
       id: 'comp3',
       name: 'Growth Marketing Co.',
       logo: 'https://images.unsplash.com/photo-1603202662706-62ead3176b8f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMHRlYW0lMjBwcm9mZXNzaW9uYWx8ZW58MXx8fHwxNzU4NDAyNjU3fDA&ixlib=rb-4.1.0&q=80&w=200',
+      description: 'Driving exponential growth through data-driven marketing strategies',
+      industry: 'Marketing & Advertising',
+      size: '100-500 employees',
+      website: 'growthmarketingco.com',
+      location: 'Los Angeles, CA',
+      founded: 2016,
       rating: 4.4,
       reviewCount: 267
     }
@@ -253,6 +271,12 @@ export const mockJobs: Job[] = [
       id: 'comp4',
       name: 'CloudScale Systems',
       logo: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdGFydHVwJTIwb2ZmaWNlJTIwbW9kZXJufGVufDF8fHx8MTc1ODQzNDQzOXww&ixlib=rb-4.1.0&q=80&w=200',
+      description: 'Scalable cloud infrastructure solutions for modern businesses',
+      industry: 'Cloud Computing',
+      size: '200-500 employees',
+      website: 'cloudscalesystems.com',
+      location: 'Austin, TX',
+      founded: 2019,
       rating: 4.7,
       reviewCount: 145
     }
@@ -293,6 +317,12 @@ export const mockJobs: Job[] = [
       id: 'comp5',
       name: 'InnovateLabs',
       logo: 'https://images.unsplash.com/photo-1718220216044-006f43e3a9b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvZmZpY2UlMjB3b3Jrc3BhY2UlMjBwcm9mZXNzaW9uYWx8ZW58MXx8fHwxNzU4MzczNDEzfDA&ixlib=rb-4.1.0&q=80&w=200',
+      description: 'Transforming ideas into market-leading products',
+      industry: 'Product Development',
+      size: '100-200 employees',
+      website: 'innovatelabs.com',
+      location: 'Seattle, WA',
+      founded: 2017,
       rating: 4.9,
       reviewCount: 298
     }
@@ -333,6 +363,12 @@ export const mockJobs: Job[] = [
       id: 'comp6',
       name: 'Global Sales Partners',
       logo: 'https://images.unsplash.com/photo-1738566061688-47e66a008254?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmaW5hbmNlJTIwb2ZmaWNlJTIwcHJvZmVzc2lvbmFsfGVufDF8fHx8MTc1ODQ1ODIzNnww&ixlib=rb-4.1.0&q=80&w=200',
+      description: 'Connecting businesses worldwide through strategic partnerships',
+      industry: 'Sales & Business Development',
+      size: '300-500 employees',
+      website: 'globalsalespartners.com',
+      location: 'Chicago, IL',
+      founded: 2014,
       rating: 4.3,
       reviewCount: 412
     }

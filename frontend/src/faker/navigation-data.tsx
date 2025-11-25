@@ -15,4 +15,10 @@ export const NAVIGATION = [
       { name: "Danh mục", path: "/admin/posts" },
     ],
   },
+  {
+    title: "Quản lý đăng bài công việc",
+    icon: <Newspaper size={20} />,
+    items: [{ name: "Quản lý đăng bài công việc", path: "/admin/job" }],
+  },
+  
 ];

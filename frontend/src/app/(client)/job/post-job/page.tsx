@@ -12,7 +12,7 @@ import ApplicationSection from "@/components/ui/client/job/post-job/ApplicationS
 import RightSidebarPanel from "@/components/ui/client/job/post-job/SidebarPanel";
 
 import { CreateJobSchema } from "@/api/Job/schema";
-import { CreateJobFormData } from "@/api/Job/type";
+import { CreateJobFormData, CreateJobRequest } from "@/api/Job/type";
 import { CircularProgress } from "@mui/material";
 
 import { useSkillsQuery } from "@/api/Skill/query";
@@ -39,7 +39,6 @@ export default function PostJobPage() {
       CompanyId: undefined,
       PostedByUserId: "jsadfkdhlkasd",
       Title: "",
-      Slug: "",
       ShortDescription: "",
       Description: "",
       Requirements: "",
@@ -98,15 +97,32 @@ export default function PostJobPage() {
     skillsLoading || tagsLoading || companiesLoading || categoriesLoading;
   const onSubmit = (draft: boolean) => (data: CreateJobFormData) => {
     const slug = slugify(data.Title, { lower: true, strict: true });
-    const payload = {
-      ...data,
+    
+    // Ensure ExpiresAt is always a Date (required by schema)
+    const expiresAt = data.ExpiresAt instanceof Date 
+      ? data.ExpiresAt 
+      : data.ExpiresAt 
+        ? new Date(data.ExpiresAt) 
+        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Default to 30 days from now
+    
+    const payload: CreateJobRequest = {
+      CompanyId: data.CompanyId,
+      PostedByUserId: data.PostedByUserId,
+      Title: data.Title,
       Slug: slug,
-      SalaryMin:
-        data.SalaryMin !== undefined ? Number(data.SalaryMin) : undefined,
-      SalaryMax:
-        data.SalaryMax !== undefined ? Number(data.SalaryMax) : undefined,
-      ExpiresAt: data.ExpiresAt ? new Date(data.ExpiresAt) : undefined,
-      status: draft ? "draft" : "active",
+      ShortDescription: data.ShortDescription,
+      Description: data.Description,
+      Requirements: data.Requirements,
+      Benefits: data.Benefits,
+      SalaryMin: data.SalaryMin !== undefined ? Number(data.SalaryMin) : undefined,
+      SalaryMax: data.SalaryMax !== undefined ? Number(data.SalaryMax) : undefined,
+      Currency: data.Currency,
+      JobType: data.JobType,
+      Location: data.Location,
+      CategoryId: data.CategoryId,
+      ExpiresAt: expiresAt,
+      skillIds: data.skillIds || [],
+      tagIds: data.tagIds || [],
     };
 
     createJob(payload);

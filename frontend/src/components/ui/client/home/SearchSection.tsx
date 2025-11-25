@@ -2,11 +2,19 @@
 
 import { ArrowRight } from "lucide-react";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@mui/material";
+
+interface StatsCardData {
+    id: number;
+    number: string;
+    description: string;
+    icon: React.ReactNode;
+}
+
 const SearchSection: React.FC = () => {
-    const [statsData, setStatsData] = useState([
+    const [statsData] = useState<StatsCardData[]>([
         {
             id: 1,
             number: "60K+",
@@ -49,7 +57,8 @@ const SearchSection: React.FC = () => {
         },
 
     ]);
-    const StatsCard = ({ card }) => {
+    
+    const StatsCard = ({ card }: { card: StatsCardData }) => {
         return (
             <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 border border-gray-100 w-[200px] h-[200px] ml-[15px] mr-[15px]">
                 <div className="flex flex-col items-center text-center h-full justify-center">
@@ -96,8 +105,37 @@ const SearchSection: React.FC = () => {
                 <p>Tim viec lam nhanh , viec lam moi nhat tu hang nghin doanh nghiep uy tin tai Viet Nam</p>
             </div>
             <div className="w-full h-[71px] mt-[25px] ml-[403px]  inline-flex items-center gap-1" >
-                <Button className="w-[402px] h-[71px] bg-[#DA5D1A] flex items-center justify-center rounded-[50px]" variant={"link"}><Link className="inline-flex items-center gap-1 text-[24px] font-bold text-[#FFFFFF]" href={"/login"}>Kham Pha ngay tai CVKING <ArrowRight className="w-4 h-4" /> </Link></Button>
-                <Button variant={"outline"} className="w-[244px] h-full ml-[30px] rounded-[50px]"  ><Link href={"#"} className="font-bold text-[24px]">Tao CV mien phi</Link></Button>
+                <Button 
+                    component={Link}
+                    href="/login"
+                    className="w-[402px] h-[71px] bg-[#DA5D1A] flex items-center justify-center rounded-[50px] hover:bg-[#C04D0F]" 
+                    variant="contained"
+                    sx={{ 
+                        textTransform: 'none',
+                        '&:hover': { backgroundColor: '#C04D0F' }
+                    }}
+                >
+                    <span className="inline-flex items-center gap-1 text-[24px] font-bold text-[#FFFFFF]">
+                        Kham Pha ngay tai CVKING <ArrowRight className="w-4 h-4" />
+                    </span>
+                </Button>
+                <Button 
+                    component={Link}
+                    href="#"
+                    variant="outlined" 
+                    className="w-[244px] h-full ml-[30px] rounded-[50px]"
+                    sx={{ 
+                        textTransform: 'none',
+                        borderColor: '#DA5D1A',
+                        color: '#DA5D1A',
+                        '&:hover': { 
+                            borderColor: '#C04D0F',
+                            backgroundColor: 'rgba(218, 93, 26, 0.1)'
+                        }
+                    }}
+                >
+                    <span className="font-bold text-[24px]">Tao CV mien phi</span>
+                </Button>
             </div>
             <div className=" p-8 min-h-screen">
                 <div className="max-w-7xl mx-auto">

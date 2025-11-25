@@ -48,7 +48,7 @@ const MyProfile = () => {
         ];
 
         const filledCount = fieldsToCheck.reduce((count, field) => {
-            const value = (jobSeekerProfile as any)[field];
+            const value = (jobSeekerProfile as Record<string, unknown>)[field];
             if (Array.isArray(value)) return count + (value.length > 0 ? 1 : 0);
             return count + (value ? 1 : 0);
         }, 0);
@@ -270,4 +270,3 @@ const MyProfile = () => {
 }
 
 export default MyProfile;
-

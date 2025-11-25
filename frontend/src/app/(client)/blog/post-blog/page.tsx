@@ -48,15 +48,16 @@ export default function PostBlogPage() {
   });
 
   const formData = watch();
+  const watchedTitle = watch("title");
 
   // Auto-generate slug from title
   useEffect(() => {
-    const title = watch("title");
+    const title = watchedTitle;
     if (title) {
       const generatedSlug = slugify(title, { lower: true, strict: true });
       setValue("slug", generatedSlug, { shouldValidate: true });
     }
-  }, [watch("title"), setValue]);
+  }, [watchedTitle, setValue]);
 
   // Debug form
   useEffect(() => {

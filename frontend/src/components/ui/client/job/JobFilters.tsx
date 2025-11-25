@@ -3,12 +3,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { Search, Filter, X } from "lucide-react";
-import { Badge, Button, Card, CardContent, CardHeader, Input, MenuItem, useMediaQuery } from "@mui/material";
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Input,
+  MenuItem,
+  useMediaQuery,
+} from "@mui/material";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { JobFilter } from "@/api/Job/type";
 import { JobCategory } from "@/api/JobCategory/type";
 import { useDebounce } from "@/lib/hook/useDebounce";
-
 
 interface JobFiltersProps {
   filters: Partial<JobFilter>;
@@ -30,7 +38,12 @@ const SALARY_RANGES = [
  * Component hiển thị bộ lọc tìm kiếm công việc, tích hợp với JobFilterSchema.
  * Sử dụng useDebounce để tối ưu hóa tìm kiếm.
  */
-export function JobFilters({ filters, categories, onFiltersChange, onSearch }: JobFiltersProps) {
+export function JobFilters({
+  filters,
+  categories,
+  onFiltersChange,
+  onSearch,
+}: JobFiltersProps) {
   const [searchQuery, setSearchQuery] = useState(filters.keyword || "");
   const [location, setLocation] = useState(filters.location || "");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -39,16 +52,42 @@ export function JobFilters({ filters, categories, onFiltersChange, onSearch }: J
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const debouncedLocation = useDebounce(location, 500);
 
+  // Sync lại local search/location khi filters từ parent thay đổi (reset, v.v.)
+  useEffect(() => {
+    setSearchQuery(filters.keyword || "");
+  }, [filters.keyword]);
+
+  useEffect(() => {
+    setLocation(filters.location || "");
+  }, [filters.location]);
+
   useEffect(() => setMounted(true), []);
 
+  // Cập nhật keyword khi search debounce xong
   useEffect(() => {
-    onFiltersChange({ ...filters, keyword: debouncedSearchQuery });
-    onSearch(debouncedSearchQuery);
-  }, [debouncedSearchQuery, onFiltersChange, onSearch]);
+    // Nếu filters.keyword đã đúng rồi thì không cần update nữa
+    if (filters.keyword === debouncedSearchQuery) return;
 
+    onFiltersChange({
+      ...filters,
+      keyword: debouncedSearchQuery || undefined,
+    });
+    onSearch(debouncedSearchQuery);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchQuery]);
+
+  // Cập nhật location khi debounce xong
   useEffect(() => {
-    onFiltersChange({ ...filters, location: debouncedLocation });
-  }, [debouncedLocation, onFiltersChange]);
+    if (filters.location === debouncedLocation) return;
+
+    onFiltersChange({
+      ...filters,
+      location: debouncedLocation || undefined,
+    });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedLocation]);
 
   const show = isExpanded || isDesktop;
   const hasActiveFilters = useMemo(
@@ -56,8 +95,11 @@ export function JobFilters({ filters, categories, onFiltersChange, onSearch }: J
     [filters]
   );
 
-  const addFilter = (type: keyof JobFilter, value: string | JobCategory | { salaryMin?: number; salaryMax?: number }) => {
-    const next = { ...filters };
+  const addFilter = (
+    type: keyof JobFilter,
+    value: string | JobCategory | { salaryMin?: number; salaryMax?: number }
+  ) => {
+    const next: Partial<JobFilter> = { ...filters };
     if (type === "categoryId") {
       const v = value as JobCategory;
       next.categoryId = v.id;
@@ -73,7 +115,7 @@ export function JobFilters({ filters, categories, onFiltersChange, onSearch }: J
   };
 
   const removeFilter = (type: keyof JobFilter) => {
-    const next = { ...filters };
+    const next: Partial<JobFilter> = { ...filters };
     if (type === "categoryId") {
       next.categoryId = undefined;
     } else if (type === "salaryMin" || type === "salaryMax") {
@@ -133,7 +175,10 @@ export function JobFilters({ filters, categories, onFiltersChange, onSearch }: J
           {placeholder}
         </MenuItem>
         {items.map((it) => (
-          <MenuItem key={it.label} value={typeof it.value === "string" ? it.value : it.label}>
+          <MenuItem
+            key={it.label}
+            value={typeof it.value === "string" ? it.value : it.label}
+          >
             {it.label}
           </MenuItem>
         ))}
@@ -226,27 +271,40 @@ export function JobFilters({ filters, categories, onFiltersChange, onSearch }: J
                   {filters.jobType && (
                     <Badge variant="standard" className="text-xs">
                       {filters.jobType}
-                      <Button onClick={() => removeFilter("jobType")} className="ml-1 hover:text-destructive">
+                      <Button
+                        onClick={() => removeFilter("jobType")}
+                        className="ml-1 hover:text-destructive"
+                      >
                         <X className="w-3 h-3" />
                       </Button>
                     </Badge>
                   )}
-                  {filters.categoryId && categories.find((c) => c.id === filters.categoryId) && (
-                    <Badge variant="standard" className="text-xs">
-                      {categories.find((c) => c.id === filters.categoryId)?.name}
-                      <Button onClick={() => removeFilter("categoryId")} className="ml-1 hover:text-destructive">
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </Badge>
-                  )}
+                  {filters.categoryId &&
+                    categories.find((c) => c.id === filters.categoryId) && (
+                      <Badge variant="standard" className="text-xs">
+                        {categories.find((c) => c.id === filters.categoryId)?.name}
+                        <Button
+                          onClick={() => removeFilter("categoryId")}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </Badge>
+                    )}
                   {(filters.salaryMin || filters.salaryMax) && (
                     <Badge variant="standard" className="text-xs">
                       {SALARY_RANGES.find(
                         (r) =>
                           r.value.salaryMin === filters.salaryMin &&
                           r.value.salaryMax === filters.salaryMax
-                      )?.label || `${filters.salaryMin || 0} - ${filters.salaryMax || "∞"} VNĐ`}
-                      <Button onClick={() => removeFilter("salaryMin")} className="ml-1 hover:text-destructive">
+                      )?.label ||
+                        `${filters.salaryMin || 0} - ${
+                          filters.salaryMax || "∞"
+                        } VNĐ`}
+                      <Button
+                        onClick={() => removeFilter("salaryMin")}
+                        className="ml-1 hover:text-destructive"
+                      >
                         <X className="w-3 h-3" />
                       </Button>
                     </Badge>
@@ -254,7 +312,10 @@ export function JobFilters({ filters, categories, onFiltersChange, onSearch }: J
                   {filters.location && (
                     <Badge variant="standard" className="text-xs">
                       {filters.location}
-                      <Button onClick={() => removeFilter("location")} className="ml-1 hover:text-destructive">
+                      <Button
+                        onClick={() => removeFilter("location")}
+                        className="ml-1 hover:text-destructive"
+                      >
                         <X className="w-3 h-3" />
                       </Button>
                     </Badge>

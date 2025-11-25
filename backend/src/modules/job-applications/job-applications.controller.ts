@@ -8,6 +8,7 @@ import {
   Body,
   ParseUUIDPipe,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JobApplicationsRepository } from './job-applications.repository';
@@ -15,6 +16,7 @@ import { ApiResponse } from '@common/interfaces/api-response.interface';
 import { CreateJobApplicationDto } from './dtos/create-job-application.dto';
 import { UpdateJobApplicationDto } from './dtos/update-job-application.dto';
 import { count } from 'console';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('job-applications')
 @Controller('job-applications')
@@ -60,6 +62,7 @@ export class JobApplicationsController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
     @Body(ValidationPipe) dto: CreateJobApplicationDto
   ): Promise<ApiResponse<any>> {
@@ -68,6 +71,7 @@ export class JobApplicationsController {
   }
 
   @Put()
+  @UseGuards(JwtAuthGuard)
   async update(
     @Body(ValidationPipe) dto: UpdateJobApplicationDto
   ): Promise<ApiResponse<any>> {

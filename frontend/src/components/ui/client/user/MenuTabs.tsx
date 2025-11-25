@@ -1,12 +1,9 @@
 "use client";
-import { Link } from "lucide-react";
-import React ,{useState} from "react";
+import React from "react";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import CompaniesSection from "../home/CompaniesSection";
-import InforUser from "./InforUser";
-import { useForm } from 'react-hook-form';
+import MyProfile from "./MyProfile";
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -42,24 +39,12 @@ const MenuTabs = () => {
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
-     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-    });
-    const handleEditToggle = () => {
-        setIsEditing(!isEditing);
-    };
-    const handleSave = (updatedData: z.infer<typeof formSchemaPersonal>) => {
-        setFormData((prevData) => ({ ...prevData, ...updatedData }));
-        setIsEditing(false);
-    };
-     // Danh sách các tab
+  // Danh sách các tab
   const tabList = [
-    { label: 'Việc làm', content:<></> },
-    { label: 'Quản lí CV & Cover letter', content: 'Nội dung cho tab Quản lí CV & Cover letter' },
-    { label: 'Hồ sơ cá nhân', content: <InforUser  isEditing={isEditing}
-                data={formData}
-                onSave={handleSave}/> },
-    { label: 'Đăng xuất', content: 'Nội dung cho tab Đăng Xuất' },
+    { label: 'Việc làm', content: <div>Nội dung cho tab Việc làm</div> },
+    { label: 'Quản lí CV & Cover letter', content: <div>Nội dung cho tab Quản lí CV & Cover letter</div> },
+    { label: 'Hồ sơ cá nhân', content: <MyProfile /> },
+    { label: 'Đăng xuất', content: <div>Nội dung cho tab Đăng Xuất</div> },
   ];
   return (
     <Box sx={{ display: 'flex', height: 'auto', bgcolor: '#f5f5f5' }}>
@@ -83,9 +68,7 @@ const MenuTabs = () => {
       <Box sx={{ flexGrow: 1, p: 3 }}>
         {tabList.map((tab, index) => (
           <CustomTabPanel key={index} value={value} index={index}>
-            <Box>
-              <p>{tab.content}</p>
-            </Box>
+            {tab.content}
           </CustomTabPanel>
         ))}
       </Box>

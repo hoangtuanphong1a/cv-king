@@ -3,18 +3,20 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import employee from "@/assets/images/employee.png";
-import { Bookmark, Briefcase, Clock, DollarSign, Eye, MapPin, Search, Upload } from "lucide-react";
+import { Bookmark, Clock, DollarSign, MapPin } from "lucide-react";
 import { Button } from "../../common/button/button";
 import { Card, CardContent } from "../../common/card/card";
 import { useRouter } from "next/navigation";
 import Link from "next/link"; // Thêm để tối ưu SEO
 import { Badge } from "@mui/material";
+import { StaticImageData } from "next/image";
+
 // Định nghĩa giao diện Job
 interface Job {
   id: number;
   title: string;
   company: string;
-  logo: any; // Thay bằng kiểu cụ thể nếu có (ví dụ: StaticImageData nếu dùng next/image)
+  logo: string | StaticImageData;
   location: string;
   salary: string;
   type: string | null | undefined;
@@ -143,14 +145,18 @@ const JobsSection = () => {
     router.push(`/jobs-detail?job=${encodeURIComponent(JSON.stringify(job))}`);
   };
 
-  const handleApplyClick = (e: React.MouseEvent, job: Job) => {
-    e.stopPropagation();
-    router.push(`/jobs-detail?job=${encodeURIComponent(JSON.stringify(job))}`);
+  const handleApplyClick = (e?: React.MouseEvent<HTMLButtonElement>, job?: Job) => {
+    e?.stopPropagation();
+    if (job) {
+      router.push(`/jobs-detail?job=${encodeURIComponent(JSON.stringify(job))}`);
+    }
   };
 
-  const handleSaveJob = (e: React.MouseEvent, job: Job) => {
-    e.stopPropagation();
-    alert(`Job "${job.title}" saved to your list!`);
+  const handleSaveJob = (e?: React.MouseEvent<HTMLButtonElement>, job?: Job) => {
+    e?.stopPropagation();
+    if (job) {
+      alert(`Job "${job.title}" saved to your list!`);
+    }
   };
 
   if (loading) {
@@ -192,10 +198,10 @@ const JobsSection = () => {
                     </div>
                   </div>
                   <Button
-                    variant="outlined"
-                    size="small"
+                    variant="outline"
+                    size="sm"
                     className="text-gray-400 hover:text-orange-600"
-                    onClick={(e) => handleSaveJob(e, job)}
+                    onClick={(e?: React.MouseEvent<HTMLButtonElement>) => handleSaveJob(e, job)}
                   >
                     <Bookmark className="h-4 w-4" />
                   </Button>
@@ -218,7 +224,7 @@ const JobsSection = () => {
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {job.tags?.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs bg-orange-100 text-orange-700">
+                    <Badge key={tag} variant="standard" className="text-xs bg-orange-100 text-orange-700">
                       {tag}
                     </Badge>
                   )) ?? null}
@@ -226,8 +232,8 @@ const JobsSection = () => {
 
                 <div className="flex items-center max-w-full justify-between">
                   <Badge
-                    variant={job.type === "Toàn thời gian" ? "default" : "outline"}
-                    className={job.type === "Toàn thời gian" ? "bg-green-100 text-green-700" : ""}
+                    variant="standard"
+                    className={job.type === "Toàn thời gian" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}
                   >
                     {job.type ?? "Chưa xác định"}
                   </Badge>
@@ -235,7 +241,7 @@ const JobsSection = () => {
                     size="sm"
                     className="text-white group-hover:bg-orange-600 transition-colors"
                     style={{ backgroundColor: "#f26b38" }}
-                    onClick={(e) => handleApplyClick(e, job)}
+                    onClick={(e?: React.MouseEvent<HTMLButtonElement>) => handleApplyClick(e, job)}
                   >
                     Apply Now
                   </Button>

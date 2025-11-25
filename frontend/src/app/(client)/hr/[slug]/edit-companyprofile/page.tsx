@@ -44,7 +44,7 @@ export default function EditCompanyProfile() {
     //get company
     const companyId = employerProfile?.company ?? "";
     const { data: companyData, isLoading: loadingCompany} =
-        useCompanyByIdQuery(companyId, { enabled: Boolean(companyId) });
+        useCompanyByIdQuery(companyId);
     
     useEffect(() => {
         if (employerProfile && companyData) {
@@ -53,7 +53,11 @@ export default function EditCompanyProfile() {
                 industry: companyData.industry ?? "",
                 size: companyData.companySize ?? "",
                 description: companyData.description ?? "",
-                benefits: companyData.benefits ?? [],
+                benefits: Array.isArray(companyData.benefits)
+                    ? companyData.benefits
+                    : companyData.benefits
+                    ? [companyData.benefits]
+                    : [],
             });
 
             setContactInfo({

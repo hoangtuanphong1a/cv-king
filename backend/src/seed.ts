@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import { MikroORM } from '@mikro-orm/core';
 import { JobCategory } from './entities/job-category.entity';
 import { Skill } from './entities/skill.entity';
@@ -6,8 +8,23 @@ import { Company } from './entities/company.entity';
 import { Roles } from './entities/role.entity';
 import mikroOrmConfig from './config/mikro-orm.config';
 
+const dbConfig = {
+  entities: ['dist/**/*.entity.js', 'src/**/*.entity.ts'],
+  entitiesTs: ['src/**/*.entity.ts'],
+  driver: require('@mikro-orm/mssql').MsSqlDriver,
+  dbName: process.env.DB_NAME,
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT, 10) || 1433,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  migrations: {
+    path: 'dist/migrations',
+    pathTs: 'src/databases/migrations',
+  },
+};
+
 async function seed() {
-  const orm = await MikroORM.init(mikroOrmConfig);
+  const orm = await MikroORM.init(dbConfig);
   const em = orm.em.fork();
 
   try {
@@ -118,54 +135,12 @@ async function seed() {
 
     // Seed Companies
     const companies = [
-      {
-        name: 'TechVision Inc.',
-        slug: 'techvision-inc',
-        industry: 'Technology',
-        companySize: '500-1000 employees',
-        website: 'techvision.com',
-        location: 'San Francisco, CA',
-      },
-      {
-        name: 'Creative Studio Pro',
-        slug: 'creative-studio-pro',
-        industry: 'Design & Creative',
-        companySize: '50-100 employees',
-        website: 'creativestudiopro.com',
-        location: 'New York, NY',
-      },
-      {
-        name: 'Growth Marketing Co.',
-        slug: 'growth-marketing-co',
-        industry: 'Marketing & Advertising',
-        companySize: '100-500 employees',
-        website: 'growthmarketingco.com',
-        location: 'Los Angeles, CA',
-      },
-      {
-        name: 'CloudScale Systems',
-        slug: 'cloudscale-systems',
-        industry: 'Cloud Computing',
-        companySize: '200-500 employees',
-        website: 'cloudscalesystems.com',
-        location: 'Austin, TX',
-      },
-      {
-        name: 'InnovateLabs',
-        slug: 'innovatelabs',
-        industry: 'Product Development',
-        companySize: '100-200 employees',
-        website: 'innovatelabs.com',
-        location: 'Seattle, WA',
-      },
-      {
-        name: 'Global Sales Partners',
-        slug: 'global-sales-partners',
-        industry: 'Sales & Business Development',
-        companySize: '300-500 employees',
-        website: 'globalsalespartners.com',
-        location: 'Chicago, IL',
-      },
+      { name: 'TechVision Inc.', slug: 'techvision-inc', industry: 'Technology', companySize: '500-1000 employees', website: 'techvision.com', location: 'San Francisco, CA' },
+      { name: 'Creative Studio Pro', slug: 'creative-studio-pro', industry: 'Design & Creative', companySize: '50-100 employees', website: 'creativestudiopro.com', location: 'New York, NY' },
+      { name: 'Growth Marketing Co.', slug: 'growth-marketing-co', industry: 'Marketing & Advertising', companySize: '100-500 employees', website: 'growthmarketingco.com', location: 'Los Angeles, CA' },
+      { name: 'CloudScale Systems', slug: 'cloudscale-systems', industry: 'Cloud Computing', companySize: '200-500 employees', website: 'cloudscalesystems.com', location: 'Austin, TX' },
+      { name: 'InnovateLabs', slug: 'innovatelabs', industry: 'Product Development', companySize: '100-200 employees', website: 'innovatelabs.com', location: 'Seattle, WA' },
+      { name: 'Global Sales Partners', slug: 'global-sales-partners', industry: 'Sales & Business Development', companySize: '300-500 employees', website: 'globalsalespartners.com', location: 'Chicago, IL' },
     ];
 
     for (const company of companies) {

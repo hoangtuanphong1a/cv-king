@@ -3,7 +3,7 @@ import * as React from "react";
 import { styled } from "@mui/material/styles";
 
 // Styled components tương ứng với shadcn/ui classes
-const StyledAvatarRoot = styled('span')(({ theme }) => ({
+const StyledAvatarRoot = styled('span')(() => ({
   position: 'relative',
   display: 'flex',
   width: '5rem', 

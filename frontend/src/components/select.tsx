@@ -12,8 +12,7 @@ import {
     ListSubheader,
     ListItemIcon,
 } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { CheckIcon, ChevronDownIcon } from "lucide-react";
 
 type SelectProps = {
     label?: string;
@@ -51,7 +50,7 @@ function Select({
                 value={value}
                 onChange={onChange}
                 label={label}
-                IconComponent={ArrowDropDownIcon} // thay ChevronDownIcon
+                IconComponent={ChevronDownIcon} // thay ChevronDownIcon
             >
                 {children}
             </MuiSelect>

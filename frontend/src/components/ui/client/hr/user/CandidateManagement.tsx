@@ -1,4 +1,6 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -40,7 +42,10 @@ import {
 } from "lucide-react";
 
 import { useMyProfileQuery } from "@/api/user/query";
-import { useJobApplicationsByCompanyQuery, useUpdateJobApplicationMutation } from "@/api/JobApplication/query";
+import {
+  useJobApplicationsByCompanyQuery,
+  useUpdateJobApplicationMutation,
+} from "@/api/JobApplication/query";
 import { useEmployerProfileByUserIdQuery } from "@/api/employer-profile/query";
 import { useRouter } from "next/navigation";
 import { useJobSeekerProfileByUserIdQuery } from "@/api/jobseeker-profile/query";
@@ -48,10 +53,22 @@ import { getJobSeekerProfileByUserIdRequest } from "@/api/jobseeker-profile/requ
 
 const statusMap = {
   Pending: { label: "Mới", color: "#3b82f6", icon: <AlertCircle size={14} /> },
-  Reviewed: { label: "Đạt yêu cầu", color: "#f59e0b", icon: <Star size={14} /> },
-  Interview: { label: "Đã phỏng vấn", color: "#8b5cf6", icon: <UserCheck size={14} /> },
+  Reviewed: {
+    label: "Đạt yêu cầu",
+    color: "#f59e0b",
+    icon: <Star size={14} />,
+  },
+  Interview: {
+    label: "Đã phỏng vấn",
+    color: "#8b5cf6",
+    icon: <UserCheck size={14} />,
+  },
   Rejected: { label: "Từ chối", color: "#ef4444", icon: <XCircle size={14} /> },
-  Hired: { label: "Đã tuyển", color: "#10b981", icon: <CheckCircle size={14} /> },
+  Hired: {
+    label: "Đã tuyển",
+    color: "#10b981",
+    icon: <CheckCircle size={14} />,
+  },
 } as const;
 
 interface Candidate {
@@ -74,7 +91,9 @@ const CandidateManagement = () => {
 
   // const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
+    null
+  );
   const [status, setStatus] = useState<string>("Pending");
   const [profiles, setProfiles] = useState<Record<string, any>>({});
 
@@ -82,59 +101,63 @@ const CandidateManagement = () => {
   const userId = user?.id;
   const { data: employerProfile } = useEmployerProfileByUserIdQuery(userId);
   const companyId = employerProfile?.company;
-  const { data: applications = [], refetch } = useJobApplicationsByCompanyQuery(companyId);
+  const { data: applications = [], refetch } =
+    useJobApplicationsByCompanyQuery(companyId);
 
-  const { mutateAsync: updateJobApplication, isPending } = useUpdateJobApplicationMutation({
-    onSuccess: () => {
-      setOpen(false);
-      refetch();
-    },
-  });
+  const { mutateAsync: updateJobApplication, isPending } =
+    useUpdateJobApplicationMutation({
+      onSuccess: () => {
+        setOpen(false);
+        refetch();
+      },
+    });
 
   const jobSeekerId = selectedCandidate?.jobSeekerId;
   const { data: jobSeekerProfile, isLoading: loadingProfile } =
     useJobSeekerProfileByUserIdQuery(jobSeekerId);
-  
+
   useEffect(() => {
-  const fetchProfiles = async () => {
-    if (!applications.length) return;
-    const results: Record<string, any> = {};
-    for (const app of applications) {
-      if (app.jobSeekerId && !results[app.jobSeekerId]) {
-        try {
-          const profile = await getJobSeekerProfileByUserIdRequest(app.jobSeekerId);
-          results[app.jobSeekerId] = profile;
-        } catch {
-          results[app.jobSeekerId] = null;
+    const fetchProfiles = async () => {
+      if (!applications.length) return;
+      const results: Record<string, any> = {};
+      for (const app of applications) {
+        if (app.jobSeekerId && !results[app.jobSeekerId]) {
+          try {
+            const profile = await getJobSeekerProfileByUserIdRequest(
+              app.jobSeekerId
+            );
+            results[app.jobSeekerId] = profile;
+          } catch {
+            results[app.jobSeekerId] = null;
+          }
         }
       }
-    }
-    setProfiles(results);
-  };
-  fetchProfiles();
-}, [applications]);
+      setProfiles(results);
+    };
+    fetchProfiles();
+  }, [applications]);
 
   const candidates = useMemo((): Candidate[] => {
-  return applications.map((a: any, index: number) => {
-    const profile = profiles[a.jobSeekerId];
+    return applications.map((a: any, index: number) => {
+      const profile = profiles[a.jobSeekerId];
 
-    return {
-      id: a.id ?? `app-${index}`,
-      jobId: a.jobId ?? "",
-      jobSeekerId: a.jobSeekerId ?? "",
-      fullName: profile?.fullName ?? a.fullName ?? "Ứng viên chưa có tên",
-      email: profile?.email ?? a.email ?? "Chưa cập nhật",
-      status: a.status ?? "Pending",
-      jobTitle: profile?.currentTitle ?? a.jobTitle ?? "Chưa cập nhật",
-      companyName: a.companyName ?? "Chưa có tên công ty",
-      location: profile?.location ?? a.location ?? "Chưa cập nhật",
-      experienceYears: profile?.yearsExperience ?? a.experienceYears ?? 0,
-      appliedAt: a.appliedAt ?? new Date().toISOString(),
-      skills: profile?.skills ?? a.skills ?? [],
-      avatarUrl: profile?.avatarUrl ?? null,
-    };
-  });
-}, [applications, profiles]);
+      return {
+        id: a.id ?? `app-${index}`,
+        jobId: a.jobId ?? "",
+        jobSeekerId: a.jobSeekerId ?? "",
+        fullName: profile?.fullName ?? a.fullName ?? "Ứng viên chưa có tên",
+        email: profile?.email ?? a.email ?? "Chưa cập nhật",
+        status: a.status ?? "Pending",
+        jobTitle: profile?.currentTitle ?? a.jobTitle ?? "Chưa cập nhật",
+        companyName: a.companyName ?? "Chưa có tên công ty",
+        location: profile?.location ?? a.location ?? "Chưa cập nhật",
+        experienceYears: profile?.yearsExperience ?? a.experienceYears ?? 0,
+        appliedAt: a.appliedAt ?? new Date().toISOString(),
+        skills: profile?.skills ?? a.skills ?? [],
+        avatarUrl: profile?.avatarUrl ?? null,
+      };
+    });
+  }, [applications, profiles]);
 
   const filteredCandidates = useMemo(() => {
     if (!searchTerm) return candidates;
@@ -169,15 +192,26 @@ const CandidateManagement = () => {
       jobId: selectedCandidate.jobId,
       jobSeekerId: selectedCandidate.jobSeekerId,
       coverLetter: "",
-      status: status as "Pending" | "Reviewed" | "Interview" | "Rejected" | "Hired",
+      status: status as
+        | "Pending"
+        | "Reviewed"
+        | "Interview"
+        | "Rejected"
+        | "Hired",
     });
   };
-
 
   return (
     <Box sx={{ p: 3, bgcolor: "#f9fafb", minHeight: "100vh" }}>
       {/* Header */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
         <Typography variant="h4" fontWeight="bold">
           Quản lý ứng viên ({candidates.length})
         </Typography>
@@ -205,10 +239,30 @@ const CandidateManagement = () => {
       {/* Stats Cards */}
       <Grid container spacing={2} sx={{ mb: 4 }}>
         {[
-          { label: "Hồ sơ mới", value: stats.moi, color: "#2563eb", icon: <UserPlus size={18} /> },
-          { label: "Đạt yêu cầu", value: stats.dat_yeu_cau, color: "#f59e0b", icon: <Star size={18} /> },
-          { label: "Đã phỏng vấn", value: stats.da_phong_van, color: "#8b5cf6", icon: <UserCheck size={18} /> },
-          { label: "Đã tuyển", value: stats.da_tuyen, color: "#10b981", icon: <CheckCircle size={18} /> },
+          {
+            label: "Hồ sơ mới",
+            value: stats.moi,
+            color: "#2563eb",
+            icon: <UserPlus size={18} />,
+          },
+          {
+            label: "Đạt yêu cầu",
+            value: stats.dat_yeu_cau,
+            color: "#f59e0b",
+            icon: <Star size={18} />,
+          },
+          {
+            label: "Đã phỏng vấn",
+            value: stats.da_phong_van,
+            color: "#8b5cf6",
+            icon: <UserCheck size={18} />,
+          },
+          {
+            label: "Đã tuyển",
+            value: stats.da_tuyen,
+            color: "#10b981",
+            icon: <CheckCircle size={18} />,
+          },
         ].map((s, i) => (
           <Grid item xs={12} sm={6} md={3} key={i}>
             <Card
@@ -239,7 +293,10 @@ const CandidateManagement = () => {
                     {s.icon}
                   </Box>
                 </Box>
-                <Typography variant="h5" sx={{ fontWeight: "bold", color: s.color }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: "bold", color: s.color }}
+                >
                   {s.value}
                 </Typography>
                 <Typography color="text.secondary" fontSize={14}>
@@ -266,7 +323,9 @@ const CandidateManagement = () => {
           >
             <CardContent sx={{ p: 3 }}>
               {/* Header row */}
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+              >
                 <Avatar
                   sx={{
                     width: 56,
@@ -282,15 +341,27 @@ const CandidateManagement = () => {
                   <Typography variant="subtitle1" fontWeight="bold">
                     {candidate.fullName}
                   </Typography>
-                  <Typography color="text.secondary">{candidate.jobTitle}</Typography>
+                  <Typography color="text.secondary">
+                    {candidate.jobTitle}
+                  </Typography>
                 </Box>
-                
+
                 <Chip
-                  label={statusMap[candidate.status as keyof typeof statusMap]?.label ?? "Mới"}
-                  icon={statusMap[candidate.status as keyof typeof statusMap]?.icon}
+                  label={
+                    statusMap[candidate.status as keyof typeof statusMap]
+                      ?.label ?? "Mới"
+                  }
+                  icon={
+                    statusMap[candidate.status as keyof typeof statusMap]?.icon
+                  }
                   sx={{
-                    bgcolor: `${statusMap[candidate.status as keyof typeof statusMap]?.color}15`,
-                    color: statusMap[candidate.status as keyof typeof statusMap]?.color,
+                    bgcolor: `${
+                      statusMap[candidate.status as keyof typeof statusMap]
+                        ?.color
+                    }15`,
+                    color:
+                      statusMap[candidate.status as keyof typeof statusMap]
+                        ?.color,
                     fontWeight: "bold",
                   }}
                 />
@@ -400,12 +471,21 @@ const CandidateManagement = () => {
         ))}
       </Stack>
 
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="xs">
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
         <DialogTitle>Cập nhật trạng thái ứng viên</DialogTitle>
         <DialogContent>
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>Trạng thái</InputLabel>
-            <Select value={status} label="Trạng thái" onChange={(e) => setStatus(e.target.value)}>
+            <Select
+              value={status}
+              label="Trạng thái"
+              onChange={(e) => setStatus(e.target.value)}
+            >
               {Object.keys(statusMap).map((key) => (
                 <MenuItem key={key} value={key}>
                   {statusMap[key as keyof typeof statusMap].label}

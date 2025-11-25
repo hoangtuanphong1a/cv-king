@@ -10,7 +10,7 @@ interface SeparatorProps extends Omit<DividerProps, 'orientation'> {
 
 const StyledDivider = styled(Divider, {
   shouldForwardProp: (prop) => prop !== 'decorative',
-})<{ decorative?: boolean }>(({ theme, orientation }) => ({
+})<{ decorative?: boolean }>(({ orientation }) => ({
   backgroundColor: 'hsl(var(--border))', // Giữ nguyên màu border từ shadcn/ui
   flexShrink: 0,
   ...(orientation === 'horizontal' && {

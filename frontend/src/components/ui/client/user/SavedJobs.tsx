@@ -1,5 +1,5 @@
-"use-client";
-import { Card, CardContent, CardHeader, CardTitle } from '../../common/card/card';
+"use client";
+import { Card, CardContent } from '../../common/card/card';
 import {
     MapPin,
     DollarSign,
@@ -7,14 +7,16 @@ import {
     Clock,
     Trash2,
     Building2,
-    Route,
+    Bookmark,
 } from 'lucide-react';
 import { Button } from '../../common/button/button';
 import { useRouter } from 'next/navigation';
-import { Badge } from '@mui/material';
+import { useApp } from '@/components/AppContext';
+// Badge replaced with span for better styling control
 
 const SavedJobs = () => {
     const router = useRouter();
+    const { navigateTo } = useApp();
     const mockSavedJobs = [
         {
             id: 1,
@@ -40,21 +42,14 @@ const SavedJobs = () => {
         }
     ];
 
-    const handleApplyToJob = (job: any) => {
-        // Create a mock job object and navigate to job detail
-        const jobDetail = {
-            id: job.id,
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            salary: job.salary,
-            description: job.description,
-            tags: job.tags,
-            posted: job.postedDate,
-            type: 'Full-time',
-            experience: '2-5 years'
-        };
-        router.push('user/a/job-detail')
+    const handleApplyToJob = () => {
+        // Navigate to job detail
+        router.push('/user/a/job-detail');
+    };
+
+    const handleRemoveSavedJob = (jobId: number) => {
+        // TODO: Implement remove saved job functionality
+        console.log('Remove job:', jobId);
     };
 
                 return (
@@ -73,10 +68,10 @@ const SavedJobs = () => {
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
                                                 <div className="flex items-center space-x-2 mb-2">
-                                                    <h3 className="cursor-pointer hover:text-primary" onClick={() => handleApplyToJob(job)}>
+                                                    <h3 className="cursor-pointer hover:text-primary" onClick={handleApplyToJob}>
                                                         {job.title}
                                                     </h3>
-                                                    {job.urgent && <Badge className="bg-red-100 text-red-700">URGENT</Badge>}
+                                                    {job.urgent && <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium">URGENT</span>}
                                                 </div>
                                                 <div className="flex items-center text-sm text-gray-600 space-x-4 mb-3">
                                                     <div className="flex items-center">
@@ -98,13 +93,13 @@ const SavedJobs = () => {
                                                 </div>
                                                 <div className="flex flex-wrap gap-2 mb-4">
                                                     {job.tags.map((tag) => (
-                                                        <Badge key={tag} variant="secondary">{tag}</Badge>
+                                                        <span key={tag} className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">{tag}</span>
                                                     ))}
                                                 </div>
                                                 <p className="text-sm text-gray-600 mb-4">{job.description}</p>
                                             </div>
                                             <div className="flex flex-col space-y-2 ml-4">
-                                                <Button size="sm" onClick={() => handleApplyToJob(job)} className="bg-primary hover:bg-primary/90">
+                                                <Button size="sm" onClick={handleApplyToJob} className="bg-primary hover:bg-primary/90">
                                                  Ứng tuyển ngay
                                                 </Button>
                                                 <Button variant="outline" size="sm" onClick={() => handleRemoveSavedJob(job.id)}>
@@ -124,7 +119,7 @@ const SavedJobs = () => {
                                     <Bookmark className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                                     <h3 className="mb-2">No saved jobs yet</h3>
                                     <p className="text-gray-600 mb-4">
-                                        Start saving jobs you're interested in to keep track of opportunities.
+                                        Start saving jobs you&apos;re interested in to keep track of opportunities.
                                     </p>
                                     <Button variant="outline" onClick={() => navigateTo('jobs')}>
                                         Browse Jobs

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeftIcon,
@@ -25,7 +25,6 @@ import {
   CssBaseline,
   Tooltip,
   Collapse,
-  useMediaQuery,
 } from "@mui/material";
 import { ToggleTheme } from "@/components/ui/common/toggle/ToggleTheme";
 import { useTheme } from "@/context/ThemeContext";
@@ -38,6 +37,23 @@ const ACCOUNTS = [
 ];
 
 const drawerWidth = 330;
+
+// Separate hook for mobile detection to avoid SSR issues
+function useMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return { isMobile };
+}
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -54,7 +70,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({
   const [openSubMenu, setOpenSubMenu] = useState<{ [key: number]: boolean }>(
     {}
   );
-  const isMobile = useMediaQuery("(max-width:1024px)");
+
+  const { isMobile } = useMobile();
 
   const handleDrawerToggle = () => setOpen(!open);
 

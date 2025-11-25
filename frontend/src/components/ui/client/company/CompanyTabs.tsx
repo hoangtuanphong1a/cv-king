@@ -6,7 +6,6 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import CompanyContact from './companyContact';
-import CompanyTags from './companyTags';
 import CompanyIntro from './companyIntro';
 import CompanyJobs from './companyJobs';
 import CompanyReview from './companyReview';

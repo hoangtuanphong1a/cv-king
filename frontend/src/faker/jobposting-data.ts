@@ -1,7 +1,7 @@
 // data/jobs.ts
-import { Job } from "@/types/job.type";
+import { MockJob } from "@/types/job.type";
 
-export const jobs: Job[] = [
+export const jobs: MockJob[] = [
   {
     id: 1,
     slug: "senior-frontend-developer",

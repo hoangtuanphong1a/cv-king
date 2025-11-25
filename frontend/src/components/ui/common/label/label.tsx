@@ -55,7 +55,6 @@ const StyledLabel = styled(FormLabel)(({ theme }) => ({
 function Label({ className, htmlFor, children, ...props }: LabelProps) {
   return (
     <StyledLabel
-      component="label"
       htmlFor={htmlFor}
       data-slot="label"
       className={className}

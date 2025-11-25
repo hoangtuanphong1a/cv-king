@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import {
   Save,
   ArrowLeft,
-  Upload,
   Plus,
   Camera,
 } from "lucide-react";
@@ -29,6 +28,20 @@ import {
 
 const toast = (message: string) => alert(message);
 
+type JobSeekerFormData = {
+  id: string;
+  name: string;
+  email: string;
+  dob: string;
+  currentTitle: string;
+  phone: string;
+  avatar: string;
+  location: string;
+  summary: string;
+  yearsExperience: string;
+};
+
+
 const EditProfilePage = () => {
   const router = useRouter();
   const { data: user, isLoading: loadingProfile } = useMyProfileQuery();
@@ -42,14 +55,20 @@ const EditProfilePage = () => {
     onError: (err: Error) => toast(`Lỗi hồ sơ: ${err.message}`),
   });
 
-  const [jobSeekerData, setJobSeekerData] = useState<any>(null);
+  const [jobSeekerData, setJobSeekerData] = useState<JobSeekerFormData | null>(null);
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
 
   const { mutateAsync: uploadFile } = useUploadFileMutation();
   const { mutateAsync: updateFile } = useUpdateFileMutation();
-
+  const normalizeDate = (value: string | Date | null | undefined) => {
+    if (!value) return "";
+    if (value instanceof Date) {
+      return value.toISOString().split("T")[0]; // YYYY-MM-DD
+    }
+    return value.split("T")[0]; // nếu là string ISO
+  };
   // Khởi tạo dữ liệu từ user + jobSeekerProfile
   useEffect(() => {
     if (user && jobSeekerProfile) {
@@ -57,22 +76,28 @@ const EditProfilePage = () => {
         id: jobSeekerProfile.id,
         name: jobSeekerProfile.fullName || user.displayName || "",
         email: user.email || "",
-        dob: jobSeekerProfile.dob || "",
+        dob: normalizeDate(jobSeekerProfile.dob),
         currentTitle: jobSeekerProfile.currentTitle || "",
         phone: jobSeekerProfile.phone || "",
         avatar: user.avatarUrl || "",
         location: jobSeekerProfile.location || "",
         summary: jobSeekerProfile.summary || "",
-        yearsExperience: jobSeekerProfile.yearsExperience || "",
+        yearsExperience: jobSeekerProfile.yearsExperience?.toString() ?? "",
       });
       setSkills(jobSeekerProfile.skills || []);
     }
   }, [user, jobSeekerProfile]);
 
-  const handleJobSeekerChange = (field: string, value: string | number) => {
-    setJobSeekerData((p: any) => ({ ...p, [field]: value }));
+  const handleJobSeekerChange = <K extends keyof JobSeekerFormData>(
+    field: K,
+    value: JobSeekerFormData[K]
+  ) => {
+    setJobSeekerData((prev) =>
+      prev ? { ...prev, [field]: value } : prev
+    );
     setHasChanges(true);
   };
+
 
   const addSkill = () => {
     if (newSkill.trim()) {
@@ -98,7 +123,9 @@ const EditProfilePage = () => {
       } else {
         result = await uploadFile({ file, folder: "avatars" });
       }
-      setJobSeekerData((p: any) => ({ ...p, avatar: result.url }));
+      setJobSeekerData((prev) =>
+        prev ? { ...prev, avatar: result.url } : prev
+      );
       setHasChanges(true);
       toast("Cập nhật ảnh đại diện thành công!");
     } catch (err) {
@@ -107,6 +134,11 @@ const EditProfilePage = () => {
   };
   const handleSave = async () => {
     if (!user || !jobSeekerData) return;
+
+    const yearsExperienceNumber: number | undefined =
+    jobSeekerData.yearsExperience.trim() === ""
+      ? undefined
+      : Number(jobSeekerData.yearsExperience);
 
     try {
       // Cập nhật bảng User
@@ -123,7 +155,7 @@ const EditProfilePage = () => {
         phone: jobSeekerData.phone,
         dob: jobSeekerData.dob,
         currentTitle: jobSeekerData.currentTitle,
-        yearsExperience: jobSeekerData.yearsExperience,
+        yearsExperience: yearsExperienceNumber,
         location: jobSeekerData.location,
         summary: jobSeekerData.summary,
         skills,
@@ -217,6 +249,9 @@ const EditProfilePage = () => {
                   accept="image/*"
                   style={{ display: "none" }}
                   onChange={handleAvatarUpload}
+                  hidden 
+                  aria-label="Tải ảnh đại diện"
+                  title="Chọn ảnh đại diện"
                 />
               </Box>
             </Box>
@@ -265,7 +300,7 @@ const EditProfilePage = () => {
               fullWidth
               value={jobSeekerData.yearsExperience}
               onChange={(e) =>
-                handleJobSeekerChange("yearsExperience", Number(e.target.value))
+                handleJobSeekerChange("yearsExperience",e.target.value)
               }
             />
             <TextField

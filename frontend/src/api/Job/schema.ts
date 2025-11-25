@@ -9,6 +9,7 @@ export const CreateJobSchema = z
       .trim()
       .min(3, "Tiêu đề quá ngắn")
       .max(120, "Tiêu đề quá dài"),
+    Slug: z.string().trim().optional(), // Optional, sẽ được generate từ Title
     ShortDescription: z.string().trim().min(1, "Tóm tắt là bắt buộc").max(280),
     Description: z.string().trim().min(1, "Mô tả là bắt buộc").max(20000),
     Requirements: z.string().trim().min(1, "Yêu cầu là bắt buộc").max(20000),

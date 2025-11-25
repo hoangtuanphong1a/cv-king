@@ -16,7 +16,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Select,
   MenuItem,
   FormControl,
@@ -29,8 +28,6 @@ import {
   ToggleButton,
   CardMedia,
   Divider,
-  RadioGroup,
-  Radio,
 } from "@mui/material";
 import { CompanyResponse } from "@/api/Company/type";
 import { useCompaniesQuery } from "@/api/Company/query";
@@ -221,8 +218,8 @@ const ListCompanyPage = () => {
   };
 
   // Select (location, industry)
-  const handleSelectChange = (e: any) => {
-    const { name, value } = e.target as { name: string; value: string };
+  const handleSelectChange = (e: { target: { name: string; value: string } }) => {
+    const { name, value } = e.target;
     setMainFilterInputs((prev) => ({ ...prev, [name]: value }));
   };
 

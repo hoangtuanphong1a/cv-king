@@ -27,7 +27,6 @@ import { BlogViewsModule } from './modules/blog-views/blog-views.module';
 import { SavedBlogsModule } from './modules/saved-blogs/saved-blogs.module';
 import { AdminModule } from './modules/admin/admin.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({

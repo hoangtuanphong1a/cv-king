@@ -1,17 +1,35 @@
 "use client";
+import React from "react";
 import { Button } from "@/lib/button";
 import { Card , CardContent } from "../../common/card/card";
 import { Badge } from "@mui/material";
 import { MapPin , Users , Star} from "lucide-react";
-import { AppProvider, useApp } from "@/components/AppContext";
+import { useApp } from "@/components/AppContext";
 import Image from "next/image";
 import company from "@/assets/images/employee.png";
+
+interface Company {
+  id: number;
+  name: string;
+  logo: string | typeof company;
+  industry: string;
+  location: string;
+  employees: string;
+  rating: number;
+  openJobs: number;
+  description: string;
+  founded: string;
+  website: string;
+  benefits: string[];
+  culture: string;
+}
+
 const CompaniesSection = () => {
     const {navigateTo} = useApp(); 
 
  
 
-  const companies = [
+  const companies: Company[] = [
      {
   id: 1,
   name: 'TechCorp Innovation',
@@ -103,12 +121,25 @@ const CompaniesSection = () => {
   culture: 'Môi trường nghiên cứu, khuyến khích đổi mới và học hỏi liên tục.'
 }];
 
- const handleCompanyClick = (company: any) => {
-    navigateTo('company-detail', { company });
+ const handleCompanyClick = (company: Company) => {
+    // Convert local Company to AppContext Company type
+    const companyData: import('@/types/company.type').Company = {
+      id: String(company.id),
+      name: company.name,
+      logo: typeof company.logo === 'string' ? company.logo : '',
+      description: company.description,
+      industry: company.industry,
+      size: company.employees,
+      website: company.website,
+      location: company.location,
+      founded: parseInt(company.founded) || 0,
+      rating: company.rating,
+      reviewCount: 0
+    };
+    navigateTo('company-detail', { company: companyData });
   };
 
-  const handleViewJobs = (e: React.MouseEvent, company: any) => {
-    e.stopPropagation();
+  const handleViewJobs = (company: Company) => {
     navigateTo('jobs', { 
       search: company.name,
       filters: { company: company.name }
@@ -145,7 +176,7 @@ const CompaniesSection = () => {
                   <h3 className="font-medium text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">
                     {company.name}
                   </h3>
-                  <Badge variant="secondary" className="bg-orange-100 text-orange-700 text-xs">
+                  <Badge variant="standard" className="bg-orange-100 text-orange-700 text-xs">
                     {company.industry}
                   </Badge>
                 </div>
@@ -179,7 +210,10 @@ const CompaniesSection = () => {
                     size="sm" 
                     variant="outline"
                     className="border-orange-600 text-orange-600 hover:bg-orange-50"
-                    onClick={(e) => handleViewJobs(e, company)}
+                    onClick={(e?: React.MouseEvent<HTMLButtonElement>) => {
+                      e?.stopPropagation();
+                      handleViewJobs(company);
+                    }}
                   >
                     View Jobs
                   </Button>

@@ -1,10 +1,9 @@
 "use client";
 import { mockCandidates } from "@/faker/overview-hr-data";
-import { useState } from "react";
+import React from "react";
 import {
     Box,
     Typography,
-    Grid,
     Card,
     CardContent,
     CardHeader,
@@ -25,43 +24,54 @@ import {
     XCircle,
     CheckCircle,
 } from 'lucide-react';
+
+type StatusKey = 'moi' | 'dat_yeu_cau' | 'da_phong_van' | 'tu_choi' | 'da_tuyen';
+
 const Overview = () => {
-    const statusMap = {
+    const statusMap: Record<StatusKey, { label: string; icon: React.ReactElement; color: 'primary' | 'info' | 'secondary' | 'error' | 'success' }> = {
         moi: {
             label: 'Mới',
             icon: <AlertCircle size={14} />,
-            color: 'primary' as const
+            color: 'primary'
         },
         dat_yeu_cau: {
             label: 'Đạt yêu cầu',
             icon: <Star size={14} />,
-            color: 'info' as const
+            color: 'info'
         },
         da_phong_van: {
             label: 'Đã phỏng vấn',
             icon: <UserCheck size={14} />,
-            color: 'secondary' as const
+            color: 'secondary'
         },
         tu_choi: {
             label: 'Từ chối',
             icon: <XCircle size={14} />,
-            color: 'error' as const
+            color: 'error'
         },
         da_tuyen: {
             label: 'Đã tuyển',
             icon: <CheckCircle size={14} />,
-            color: 'success' as const
+            color: 'success'
         }
     };
 
     // 2. Hàm getStatusChip được viết lại ngắn gọn hơn
-    const getStatusChip = (status: string) => {
+    const getStatusChip = (status: string): React.ReactElement => {
         // Lấy thông tin trạng thái từ statusMap, nếu không có thì dùng giá trị mặc định
-        const statusInfo = statusMap[status] || {
+        const statusInfo = statusMap[status as StatusKey] || {
             label: status,
-            icon: null,
+            icon: <AlertCircle size={14} />,
             color: 'default' as const
         };
+        return (
+            <Chip
+                label={statusInfo.label}
+                icon={statusInfo.icon}
+                color={statusInfo.color}
+                size="small"
+            />
+        );
     }
      return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -80,60 +90,62 @@ const Overview = () => {
             </Box>
 
             {/* 2. Các thẻ thống kê */}
-            <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} lg={3}>
-                    <Card sx={{ borderRadius: 2, cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
-                        <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Box>
-                                    <Typography color="text.secondary">Việc làm đang hoạt động</Typography>
-                                    <Typography variant="h5" fontWeight="bold">8</Typography>
-                                </Box>
-                                <Avatar sx={{ bgcolor: 'primary.main', color: 'white' }}><Briefcase /></Avatar>
+            <Box
+                sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        sm: 'repeat(2, 1fr)',
+                        lg: 'repeat(4, 1fr)'
+                    },
+                    gap: 3
+                }}
+            >
+                <Card sx={{ borderRadius: 2, cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
+                    <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box>
+                                <Typography color="text.secondary">Việc làm đang hoạt động</Typography>
+                                <Typography variant="h5" fontWeight="bold">8</Typography>
                             </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                <Grid item xs={12} sm={6} lg={3}>
-                    <Card sx={{ borderRadius: 2, cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
-                        <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Box>
-                                    <Typography color="text.secondary">Tổng số hồ sơ</Typography>
-                                    <Typography variant="h5" fontWeight="bold">156</Typography>
-                                </Box>
-                                <Avatar sx={{ bgcolor: 'info.main', color: 'white' }}><Users /></Avatar>
+                            <Avatar sx={{ bgcolor: 'primary.main', color: 'white' }}><Briefcase /></Avatar>
+                        </Box>
+                    </CardContent>
+                </Card>
+                <Card sx={{ borderRadius: 2, cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
+                    <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box>
+                                <Typography color="text.secondary">Tổng số hồ sơ</Typography>
+                                <Typography variant="h5" fontWeight="bold">156</Typography>
                             </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                <Grid item xs={12} sm={6} lg={3}>
-                    <Card sx={{ borderRadius: 2, cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
-                        <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Box>
-                                    <Typography color="text.secondary">Hồ sơ trong tuần</Typography>
-                                    <Typography variant="h5" fontWeight="bold">24</Typography>
-                                </Box>
-                                <Avatar sx={{ bgcolor: 'success.main', color: 'white' }}><TrendingUp /></Avatar>
+                            <Avatar sx={{ bgcolor: 'info.main', color: 'white' }}><Users /></Avatar>
+                        </Box>
+                    </CardContent>
+                </Card>
+                <Card sx={{ borderRadius: 2, cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
+                    <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box>
+                                <Typography color="text.secondary">Hồ sơ trong tuần</Typography>
+                                <Typography variant="h5" fontWeight="bold">24</Typography>
                             </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                <Grid item xs={12} sm={6} lg={3}>
-                    <Card sx={{ borderRadius: 2, cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
-                        <CardContent>
-                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Box>
-                                    <Typography color="text.secondary">Lịch phỏng vấn</Typography>
-                                    <Typography variant="h5" fontWeight="bold">12</Typography>
-                                </Box>
-                                <Avatar sx={{ bgcolor: 'secondary.main', color: 'white' }}><Calendar /></Avatar>
+                            <Avatar sx={{ bgcolor: 'success.main', color: 'white' }}><TrendingUp /></Avatar>
+                        </Box>
+                    </CardContent>
+                </Card>
+                <Card sx={{ borderRadius: 2, cursor: 'pointer', '&:hover': { boxShadow: 4 } }}>
+                    <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Box>
+                                <Typography color="text.secondary">Lịch phỏng vấn</Typography>
+                                <Typography variant="h5" fontWeight="bold">12</Typography>
                             </Box>
-                        </CardContent>
-                    </Card>
-                </Grid>
-            </Grid>
+                            <Avatar sx={{ bgcolor: 'secondary.main', color: 'white' }}><Calendar /></Avatar>
+                        </Box>
+                    </CardContent>
+                </Card>
+            </Box>
 
             {/* 3. Danh sách hồ sơ ứng tuyển gần đây */}
             <Card sx={{ borderRadius: 2 }}>

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Box, Button } from "@mui/material";
-import { LineChart, RadarChart } from "@mui/x-charts";
 import { BarChart } from '@mui/x-charts';
 import { ChartNoAxesCombined } from "lucide-react";
 const jobData = [
@@ -12,27 +11,8 @@ const jobData = [
     { "work": "Marketing", "jobs": 1200 ,"findJobs":400},
     { "work": "Quản trị nhân sự", "jobs": 400 ,"findJobs":400}];
 
-const salaryData = [
-    { range: "Dưới 3 triệu", jobs: 150 },
-    { range: "Từ 3-10 triệu", jobs: 450 },
-    { range: "Từ 10-20 triệu", jobs: 700 },
-    { range: "Từ 20-30 triệu", jobs: 300 },
-    { range: "Trên 30 triệu", jobs: 120 },
-    { range: "Thỏa thuận", jobs: 250 },
-];
-
 const TodayJobsStatSection = React.forwardRef<HTMLDivElement>(() => {
     const today = new Date().toLocaleDateString("vi-VN");
-    const valueFormatter = (
-        value: number | null,
-        context: { dataIndex?: number }
-    ) => {
-        if (context.dataIndex !== undefined) {
-            const range = salaryData[context.dataIndex]?.range;
-            return `${range}: ${value} việc làm`;
-        }
-        return `${value} việc làm`;
-    };
 
     return (
         <section

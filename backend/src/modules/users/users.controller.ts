@@ -20,7 +20,7 @@ import { ApiResponse } from '@common/interfaces/api-response.interface';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
-import { Roless } from '@modules/auth/guards/roles.decorator';
+import { Roles } from '@modules/auth/guards/roles.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -67,7 +67,7 @@ export class UsersController {
    */
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roless('Admin')
+  @Roles('Admin')
   async findAll(): Promise<ApiResponse<Users[]>> {
     const users = await this.usersService.getAllUsers();
     return {
@@ -85,7 +85,7 @@ export class UsersController {
    */
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roless('Admin', 'JobSeeker')
+  @Roles('Admin', 'JobSeeker')
   async findOne(
     @Param('id', ParseIntPipe) id: string
   ): Promise<ApiResponse<Partial<Users>>> {
@@ -123,7 +123,7 @@ export class UsersController {
    */
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roless('Admin')
+  @Roles('Admin')
   async update(
     @Param('id', ParseIntPipe) id: string,
     @Body() dto: UpdateUserDto
@@ -143,7 +143,7 @@ export class UsersController {
    */
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roless('Admin')
+  @Roles('Admin')
   async remove(
     @Param('id', ParseIntPipe) id: string
   ): Promise<ApiResponse<boolean>> {

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { jobs } from "@/faker/jobscompany-data";
-import { Briefcase, CalendarDays, Clock8, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 const CompanyJobs: React.FC = () => {
     const getPostedText = (id: string): string => {
