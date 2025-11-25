@@ -4,34 +4,25 @@ services:
     container_name: cv-king-sqlserver
     restart: unless-stopped
     environment:
-      ACCEPT_EULA: Y
-      SA_PASSWORD: ${SA_PASSWORD}
-      MSSQL_PID: Express
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "${SA_PASSWORD}"
+      MSSQL_PID: "Express"
     ports:
       - "1433:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
-      - ./sqlserver/init:/docker-entrypoint-initdb.d
     networks:
       - cv-king-network
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SA_PASSWORD} -Q 'SELECT 1'",
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -Q "SELECT 1"',
         ]
       start_period: 180s
       interval: 30s
       timeout: 15s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 2GB
-          cpus: "1.0"
-        reservations:
-          memory: 1GB
-          cpus: "0.5"
+      retries: 10
     env_file:
       - .env
 
@@ -59,14 +50,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: "1.0"
-        reservations:
-          memory: 512M
-          cpus: "0.5"
     env_file:
       - .env
 
