@@ -126,6 +126,8 @@ SA_PASSWORD=\$SA_PASSWORD
 DB_NAME=\$DB_NAME
 JWT_SECRET=\$JWT_SECRET
 EOF
+                    echo "📝 Nội dung file .env:"
+                    cat .env
 
                     echo "🔑 Docker login"
                     mkdir -p ~/.docker
@@ -156,10 +158,13 @@ EOF
                     echo "▶️ Khởi động lại toàn bộ services"
                     docker compose --env-file .env up -d
 
-                    echo "⏳ Đợi health checks..."
-                    sleep 30
+                    echo "⏳ Đợi health checks (SQL Server cần 1-2 phút để khởi động)..."
+                    sleep 90
 
-                    echo "📊 Kiểm tra trạng thái services"
+                    echo "� Kiểm tra initial container status..."
+                    docker ps
+
+                    echo "�� Kiểm tra trạng thái services"
                     docker ps
 
                     echo "🧽 Dọn dẹp image không còn dùng"

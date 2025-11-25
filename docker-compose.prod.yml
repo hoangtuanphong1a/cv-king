@@ -84,7 +84,6 @@ services:
       - backend
     networks:
       - cv-king-network
-
     env_file:
       - .env
 
