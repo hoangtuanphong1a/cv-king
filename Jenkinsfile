@@ -66,12 +66,12 @@ pipeline {
             }
         }
 
-        /* === STAGE 3: TEST SERVER CONNECTION === */
+        /* === STAGE 3: TEST SSH CONNECTION === */
         stage('Test Server Connection') {
             steps {
                 echo "🔗 Kiểm tra kết nối SSH tới server..."
-                withCredentials([sshUserPrivateKey(credentialsId: 'server-ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    sh 'ssh -o StrictHostKeyChecking=no -i $SSH_KEY -v $SERVER_USER@$SERVER_HOST "echo Kết nối SSH thành công ✅"'
+                sshagent (credentials: ['server-ssh-key']) {
+                    sh 'ssh -o StrictHostKeyChecking=no -v $SERVER_USER@$SERVER_HOST "echo Kết nối SSH thành công ✅"'
                 }
             }
         }
