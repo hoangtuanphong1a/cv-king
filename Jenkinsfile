@@ -10,10 +10,10 @@ pipeline {
         BACKEND_IMAGE_NAME = "cv-king-backend"
         FRONTEND_IMAGE_NAME = "cv-king-frontend"
         SERVER_HOST = "206.189.88.56"
-        SERVER_USER = "root"
+        SERVER_USER = "ubuntu"
 
         // SQL Server Configuration
-        SA_PASSWORD = "123321  "
+        SA_PASSWORD = "123321  "    
         DB_NAME = "JOB_DB"
 
         // JWT Configuration
