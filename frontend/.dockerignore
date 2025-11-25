@@ -1,0 +1,13 @@
+node_modules
+.next
+.env*
+.git
+.gitignore
+docker-compose.yml
+Dockerfile
+.dockerignore
+.eslintignore
+.hintrc
+*.log
+coverage
+.nyc_output
