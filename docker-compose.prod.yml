@@ -40,11 +40,7 @@ services:
     container_name: cv-king-backend
     restart: unless-stopped
     environment:
-      DB_HOST: sqlserver
-      DB_PORT: 1433
-      DB_NAME: ${DB_NAME}
-      DB_USER: sa
-      DB_PASSWORD: ${SA_PASSWORD}
+      DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: 24h
       PORT: 3003
