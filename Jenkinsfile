@@ -84,7 +84,7 @@ pipeline {
                     usernamePassword(credentialsId: 'dockerhub-cred',
                         usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'),
                     string(credentialsId: 'db-conn', variable: 'DB_CONN')
-                ])]{
+                ]) {
                   sshagent (credentials: ['server-ssh-key']) {
                     sh '''
                     set -e
