@@ -1,56 +1,75 @@
-# Use Node.js 20 Alpine for smaller image
-FROM node:20-alpine AS base
-RUN apk add --no-cache yarn
+FROM node:20-alpine AS builder
 
-# Install dependencies only when needed
-FROM base AS deps
+# Build args for registry customization
+ARG NPM_CONFIG_REGISTRY=https://registry.npmmirror.com/
+ARG CACHE_BUST
+
 WORKDIR /app
 
-# Copy package files
-COPY package.json yarn.lock ./
+# Optimize npm config
+RUN npm config set registry ${NPM_CONFIG_REGISTRY} && \
+    npm config set prefer-offline true && \
+    npm config set progress false && \
+    npm config set audit false && \
+    npm config set fund false && \
+    npm config set update-notifier false
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
+# Copy package files for better Docker layer caching
+COPY package*.json ./
 
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci --no-audit --no-fund --prefer-offline --timeout=60000
+
+# Copy source code
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage
-ENV NEXT_TELEMETRY_DISABLED=1
+# Build application
+RUN npm run build && \
+    npm prune --production && \
+    npm cache clean --force
 
-# Build the application
-RUN yarn build
+# ===== RUNTIME STAGE =====
+FROM node:20-alpine AS runtime
 
-# Production image, copy all the files and run next
-FROM base AS runner
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init curl && \
+    apk add --no-cache --update tzdata ca-certificates && \
+    cp /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && \
+    echo "Asia/Ho_Chi_Minh" > /etc/timezone && \
+    apk del tzdata && \
+    rm -rf /var/cache/apk/* /tmp/*
+
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001
 
-# Create a non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Copy package files and production node_modules from builder
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
 
-# Copy necessary files
-COPY --from=builder /app/public ./public
+# Set proper ownership and permissions
+RUN chown -R nestjs:nodejs /app && \
+    chmod 755 /app && \
+    chmod -R 755 /app/dist && \
+    chmod -R 755 /app/node_modules
 
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+# Switch to non-root user
+USER nestjs
 
-# Automatically leverage output traces to reduce image size
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Environment variables
+ENV NODE_ENV=production \
+    PORT=8080
 
-USER nextjs
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/health || exit 1
 
-EXPOSE 3000
+# Expose port
+EXPOSE 8080
 
-ENV PORT 3000
-
-# server.js is created by next build from the standalone output
-CMD ["node", "server.js"]
+# Start application with dumb-init
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/main.js"]
