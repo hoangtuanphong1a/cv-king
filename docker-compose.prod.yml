@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -5,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "${SA_PASSWORD}"
+      SA_PASSWORD: "${DB_PASSWORD}"
       MSSQL_PID: "Express"
     ports:
       - "1433:1433"
@@ -17,12 +19,12 @@ services:
       test:
         [
           "CMD-SHELL",
-          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -Q "SELECT 1"',
+          "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P '$DB_PASSWORD' -Q 'SELECT 1'",
         ]
-      start_period: 180s
       interval: 30s
       timeout: 15s
       retries: 10
+      start_period: 60s
     env_file:
       - .env
 
@@ -31,11 +33,17 @@ services:
     container_name: cv-king-backend
     restart: unless-stopped
     environment:
-      DB_CONNECTION_STRING: ${DB_CONNECTION_STRING}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: 24h
-      PORT: 3003
-      APP_PORT: 3003
+      DB_TYPE: mssql
+      DB_HOST: sqlserver
+      DB_PORT: 1433
+      DB_USERNAME: sa
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_ACCESS_EXPIRATION_TIME: ${JWT_ACCESS_EXPIRATION_TIME}
+      JWT_REFRESH_EXPIRATION_TIME: ${JWT_REFRESH_EXPIRATION_TIME}
+      APP_PORT: ${APP_PORT}
       NODE_ENV: production
     ports:
       - "3004:3003"

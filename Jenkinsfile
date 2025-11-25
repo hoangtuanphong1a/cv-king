@@ -6,19 +6,31 @@ pipeline {
         pollSCM('H/2 * * * *') // Poll every 2 minutes
     }
 
-    environment {
-        BACKEND_IMAGE_NAME = "cv-king-backend"
-        FRONTEND_IMAGE_NAME = "cv-king-frontend"
-        SERVER_HOST = "206.189.88.56"
-        SERVER_USER = "root"
+environment {
+BACKEND_IMAGE_NAME = "cv-king-backend"
+FRONTEND_IMAGE_NAME = "cv-king-frontend"
+SERVER_HOST = "206.189.88.56"
+SERVER_USER = "root"
 
-        // SQL Server Configuration
-        SA_PASSWORD = "CvKing123!"
-        DB_NAME = "JOB_DB"
 
-        // JWT Configuration
-        JWT_SECRET = "cv-king-super-secret-jwt-key-2024-secure"
-    }
+// SQL Server Configuration
+SA_PASSWORD = "CvKing123!"
+DB_NAME = "JOB_DB"
+DB_USERNAME = "sa"
+DB_HOST = "sqlserver"
+DB_PORT = "1433"
+
+
+// JWT Configuration
+JWT_ACCESS_SECRET = "35661de8d970428b38fef10fa2a09fdcb06be08e37e8dd4ebc388b017e77f72e"
+JWT_REFRESH_SECRET = "adb899b70a62ee55970c5d9dc03cb4c51e309967b218d0f2fe9d8dc8ad62876d"
+JWT_ACCESS_EXPIRATION_TIME = "1h"
+JWT_REFRESH_EXPIRATION_TIME = "7d"
+
+
+// Docker Registry
+DOCKER_REGISTRY = "docker.io/hoangtuanphong"
+}
 
     stages {
         /* === STAGE 1: CHECKOUT CODE === */
@@ -157,8 +169,8 @@ EOF
                     echo "▶️ Khởi động lại toàn bộ services"
                     docker compose --env-file .env up -d
 
-                    echo "⏳ Đợi health checks (SQL Server cần 3 phút để health check)..."
-                    sleep 180
+                    echo "⏳ Đợi health checks (SQL Server cần 5 phút để health check)..."
+                    sleep 300
 
                     echo "📊 Kiểm tra initial container status..."
                     docker ps
