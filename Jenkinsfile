@@ -13,7 +13,7 @@ pipeline {
         SERVER_USER = "root"
 
         // SQL Server Configuration
-        SA_PASSWORD = "StrongPass123!"
+        SA_PASSWORD = "123321"
         DB_NAME = "JOB_DB"
 
         // JWT Configuration
