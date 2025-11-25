@@ -1,15 +1,16 @@
 # Use Node.js 20 Alpine for smaller image
 FROM node:20-alpine AS base
+RUN apk add --no-cache yarn
 
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+RUN yarn install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -17,14 +18,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Install pnpm globally (since it's used in deps stage but not copied over)
-RUN npm install -g pnpm
-
 # Next.js collects completely anonymous telemetry data about general usage
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the application
-RUN pnpm run build
+RUN yarn build
 
 # Production image, copy all the files and run next
 FROM base AS runner
