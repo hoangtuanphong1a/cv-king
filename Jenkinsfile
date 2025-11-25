@@ -66,15 +66,15 @@ pipeline {
             }
         }
 
-        // /* === STAGE 3: TEST SSH CONNECTION === */
-        // stage('Test Server Connection') {
-        //     steps {
-        //         echo "🔗 Kiểm tra kết nối SSH tới server..."
-        //         sshagent (credentials: ['server-ssh-key']) {
-        //             sh 'ssh -o StrictHostKeyChecking=no -v $SERVER_USER@$SERVER_HOST "echo Kết nối SSH thành công ✅"'
-        //         }
-        //     }
-        // }
+        /* === STAGE 3: TEST SSH CONNECTION === */
+        stage('Test Server Connection') {
+            steps {
+                echo "🔗 Kiểm tra kết nối SSH tới server..."
+                sshagent (credentials: ['server-ssh-key']) {
+                    sh 'ssh -o StrictHostKeyChecking=no -v $SERVER_USER@$SERVER_HOST "echo Kết nối SSH thành công ✅"'
+                }
+            }
+        }
 
         /* === STAGE 4: DEPLOY SERVER === */
         stage('Deploy Server') {
