@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    triggers {
+        githubPush()
+        pollSCM('H/2 * * * *') // Poll every 2 minutes
+    }
+
     environment {
         BACKEND_IMAGE_NAME = "cv-king-backend"
         FRONTEND_IMAGE_NAME = "cv-king-frontend"
