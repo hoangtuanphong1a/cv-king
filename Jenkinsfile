@@ -13,7 +13,7 @@ pipeline {
         SERVER_USER = "root"
 
         // SQL Server Configuration
-        SA_PASSWORD = "123321  "
+        SA_PASSWORD = "123321"
         DB_NAME = "JOB_DB"
 
         // JWT Configuration
@@ -157,8 +157,8 @@ EOF
                     echo "▶️ Khởi động lại toàn bộ services"
                     docker compose --env-file .env up -d
 
-                    echo "⏳ Đợi health checks (SQL Server cần 1-2 phút để khởi động)..."
-                    sleep 90
+                    echo "⏳ Đợi health checks (SQL Server cần 3 phút để health check)..."
+                    sleep 180
 
                     echo "📊 Kiểm tra initial container status..."
                     docker ps
