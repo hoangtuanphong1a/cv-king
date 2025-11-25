@@ -84,9 +84,9 @@ pipeline {
                     usernamePassword(credentialsId: 'dockerhub-cred',
                         usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'),
                     string(credentialsId: 'db-conn', variable: 'DB_CONN'),
-                    file(credentialsId: 'docker-compose-prod', variable: 'DOCKER_COMPOSE_PATH'),
-                    sshUserPrivateKey(credentialsId: 'server-ssh-key', keyFileVariable: 'SSH_KEY')
+                    file(credentialsId: 'docker-compose-prod', variable: 'DOCKER_COMPOSE_PATH')
                 ]) {
+                  sshagent (credentials: ['server-ssh-key']) {
                     sh '''
                     set -e
 
@@ -96,13 +96,13 @@ pipeline {
                     echo "PASS length: ${#DOCKER_PASS}"
 
                     echo "=== [1/6] Tạo thư mục ~/project trên server ==="
-                    ssh -o StrictHostKeyChecking=no -i $SSH_KEY $SERVER_USER@$SERVER_HOST "mkdir -p ~/project && chmod 755 ~/project"
+                    ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "mkdir -p ~/project && chmod 755 ~/project"
 
                     echo "=== [2/6] Copy docker-compose-prod.yml lên server ==="
-                    scp -o StrictHostKeyChecking=no -i $SSH_KEY $DOCKER_COMPOSE_PATH $SERVER_USER@$SERVER_HOST:~/project/docker-compose.yml
+                    scp -o StrictHostKeyChecking=no $DOCKER_COMPOSE_PATH $SERVER_USER@$SERVER_HOST:~/project/docker-compose.yml
 
                     echo "=== [3/6] Bắt đầu deploy trên server ==="
-                    ssh -T -o StrictHostKeyChecking=no -i $SSH_KEY $SERVER_USER@$SERVER_HOST <<REMOTE_EOF
+                    ssh -T -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST <<REMOTE_EOF
                     set -ex
                     cd ~/project
 
