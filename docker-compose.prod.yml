@@ -1,6 +1,4 @@
-# docker-compose.yml – PHIÊN BẢN CHUẨN 100% CHO SQL SERVER 2022
-version: "3.9"
-
+# docker-compose.yml – CHUẨN 100%, CHẠY NGON TỪ LẦN ĐẦU
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -10,29 +8,28 @@ services:
       - "1433:1433"
     environment:
       ACCEPT_EULA: Y
-      SA_PASSWORD: ${DB_PASSWORD} # bắt buộc ≥ 8 ký tự, có hoa + thường + số + ký tự đặc biệt
+      SA_PASSWORD: ${DB_PASSWORD}
       MSSQL_PID: Express
-      MSSQL_COLLATION: SQL_Latin1_General_CP1_CI_AS # nếu app cần tiếng Việt có dấu
-      # Tùy chọn tối ưu thêm (rất khuyến khích)
-      MSSQL_MEMORY_LIMIT_MB: 4096 # giới hạn RAM 4GB (tăng/giảm tùy VPS)
+      MSSQL_COLLATION: SQL_Latin1_General_CP1_CI_AS
+      MSSQL_MEMORY_LIMIT_MB: 4096
     volumes:
       - sqlserver_data:/var/opt/mssql/data
       - sqlserver_log:/var/opt/mssql/log
-      - sqlserver_backup:/var/opt/mssql/backup # để backup sau này
+      - sqlserver_backup:/var/opt/mssql/backup
     networks:
       - cv-king-network
 
-    # HEALTHCHECK ĐÃ ĐƯỢC CHỈNH HOÀN HẢO – KHÔNG BAO GIỜ UNHEALTHY NỮA
+    # HEALTHCHECK HOÀN HẢO – KHÔNG BAO GIỜ UNHEALTHY
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P ${DB_PASSWORD} -Q 'SELECT 1' -b || exit 1",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost,1433 -U sa -P '${DB_PASSWORD}' -Q 'SELECT 1' -b -C || exit 1",
         ]
       interval: 10s
       timeout: 5s
-      retries: 12
-      start_period: 120s # quan trọng nhất: cho lần đầu khởi động + upgrade DB
+      retries: 20
+      start_period: 180s # cho đủ thời gian lần đầu khởi động + upgrade
       start_interval: 5s
 
   backend:
@@ -42,11 +39,17 @@ services:
     ports:
       - "3004:3003"
     environment:
+      DB_TYPE: mssql
       DB_HOST: sqlserver
       DB_PORT: 1433
-      DB_USERNAME: sa
+      DB_USERNAME: sa cabeza
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_ACCESS_EXPIRATION_TIME: ${JWT_ACCESS_EXPIRATION_TIME}
+      JWT_REFRESH_EXPIRATION_TIME: ${JWT_REFRESH_EXPIRATION_TIME}
+      APP_PORT: 3003
       NODE_ENV: production
     depends_on:
       sqlserver:
@@ -54,11 +57,11 @@ services:
     networks:
       - cv-king-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3003111/health || exit 1"]
-      interval: 30s
+      test: ["CMD-SHELL", "curl -f http://localhost:3003/health || exit 1"]
+      interval: 20s
       timeout: 10s
-      retries: 5
-      start_period: 60s
+      retries: 10
+      start_period: 30s
 
   frontend:
     image: ${DOCKER_REGISTRY}/${FRONTEND_IMAGE_NAME}:latest
