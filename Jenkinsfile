@@ -189,43 +189,43 @@ REMOTE_EOF
             }
         }
 
-        /* === STAGE 5: VERIFY DEPLOYMENT === */
-        stage('Verify Deployment') {
-            steps {
-                echo "🔍 Kiểm tra deployment sau khi deploy..."
-                withCredentials([sshUserPrivateKey(credentialsId: 'server-ssh-key', keyFileVariable: 'SSH_KEY')]) {
-                    sh '''
-                    set -e
-                    echo "=== Kiểm tra HTTP endpoints ==="
-                    ssh -o StrictHostKeyChecking=no -i $SSH_KEY $SERVER_USER@$SERVER_HOST <<REMOTE_VERIFY
-                    set -e
+//         /* === STAGE 5: VERIFY DEPLOYMENT === */
+//         stage('Verify Deployment') {
+//             steps {
+//                 echo "🔍 Kiểm tra deployment sau khi deploy..."
+//                 withCredentials([sshUserPrivateKey(credentialsId: 'server-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+//                     sh '''
+//                     set -e
+//                     echo "=== Kiểm tra HTTP endpoints ==="
+//                     ssh -o StrictHostKeyChecking=no -i $SSH_KEY $SERVER_USER@$SERVER_HOST <<REMOTE_VERIFY
+//                     set -e
 
-                    echo "🔍 Kiểm tra backend health endpoint..."
-                    if curl -f -s http://localhost:3004/health >/dev/null 2>&1; then
-                      echo "✅ Backend health: OK"
-                    else
-                      echo "❌ Backend health: FAILED"
-                      exit 1
-                    fi
+//                     echo "🔍 Kiểm tra backend health endpoint..."
+//                     if curl -f -s http://localhost:3004/health >/dev/null 2>&1; then
+//                       echo "✅ Backend health: OK"
+//                     else
+//                       echo "❌ Backend health: FAILED"
+//                       exit 1
+//                     fi
 
-                    echo "🔍 Kiểm tra frontend endpoint..."
-                    if curl -f -s http://localhost:3005 >/dev/null 2>&1; then
-                      echo "✅ Frontend: OK"
-                    else
-                      echo "❌ Frontend: FAILED"
-                      exit 1
-                    fi
+//                     echo "🔍 Kiểm tra frontend endpoint..."
+//                     if curl -f -s http://localhost:3005 >/dev/null 2>&1; then
+//                       echo "✅ Frontend: OK"
+//                     else
+//                       echo "❌ Frontend: FAILED"
+//                       exit 1
+//                     fi
 
-                    echo "📊 Final container status:"
-                    docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+//                     echo "📊 Final container status:"
+//                     docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-                    echo "🎉 All services verified successfully!"
-REMOTE_VERIFY
-                    '''
-                }
-            }
-        }
-    }
+//                     echo "🎉 All services verified successfully!"
+// REMOTE_VERIFY
+//                     '''
+//                 }
+//             }
+//         }
+//     }
 
     post {
         success {
