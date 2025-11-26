@@ -109,7 +109,18 @@ DOCKER_REGISTRY = "docker.io/hoangtuanphong"
                         ssh -o StrictHostKeyChecking=no root@${SERVER_HOST} << 'EOF'
                         cd ~/project || mkdir -p ~/project && cd ~/project
 
-                        # Tạo file .env – tất cả biến đã được truyền từ Jenkins
+                        # Export Jenkins environment variables để resolve trong SSH session
+                        export DOCKER_REGISTRY="${DOCKER_REGISTRY}"
+                        export BACKEND_IMAGE_NAME="${BACKEND_IMAGE_NAME}"
+                        export FRONTEND_IMAGE_NAME="${FRONTEND_IMAGE_NAME}"
+                        export SA_PASSWORD="${SA_PASSWORD}"
+                        export DB_NAME="${DB_NAME}"
+                        export JWT_ACCESS_SECRET="${JWT_ACCESS_SECRET}"
+                        export JWT_REFRESH_SECRET="${JWT_REFRESH_SECRET}"
+                        export JWT_ACCESS_EXPIRATION_TIME="${JWT_ACCESS_EXPIRATION_TIME}"
+                        export JWT_REFRESH_EXPIRATION_TIME="${JWT_REFRESH_EXPIRATION_TIME}"
+
+                        # Tạo file .env với variables đã được export
                         cat > .env << ENV
 DOCKER_REGISTRY=${DOCKER_REGISTRY}
 BACKEND_IMAGE_NAME=${BACKEND_IMAGE_NAME}

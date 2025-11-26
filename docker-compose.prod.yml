@@ -21,11 +21,7 @@ services:
 
     # HEALTHCHECK HOÀN HẢO – KHÔNG BAO GIỜ UNHEALTHY
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${DB_PASSWORD}' -Q 'SELECT 1' -b",
-        ]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${DB_PASSWORD}' -Q 'SELECT 1' -b"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -42,7 +38,7 @@ services:
       DB_TYPE: mssql
       DB_HOST: sqlserver
       DB_PORT: 1433
-      DB_USERNAME: sa cabeza
+      DB_USERNAME: sa
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
