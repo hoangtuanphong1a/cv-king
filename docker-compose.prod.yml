@@ -1,27 +1,5 @@
 # docker-compose.yml – CHUẨN 100%, CHẠY NGON TỪ LẦN ĐẦU
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: cv-king-sqlserver
-    restart: unless-stopped
-    ports:
-      - "1433:1433"
-    environment:
-      ACCEPT_EULA: Y
-      SA_PASSWORD: ${DB_PASSWORD}
-      MSSQL_PID: Express
-      MSSQL_COLLATION: SQL_Latin1_General_CP1_CI_AS
-      MSSQL_MEMORY_LIMIT_MB: 4096
-    volumes:
-      - sqlserver_data:/var/opt/mssql/data
-      - sqlserver_log:/var/opt/mssql/log
-      - sqlserver_backup:/var/opt/mssql/backup
-    networks:
-      - cv-king-network
-
-    # RUN AS ROOT TO BYPASS PERMISSIONS ISSUES
-    user: root
-
   backend:
     image: ${DOCKER_REGISTRY}/${BACKEND_IMAGE_NAME}:latest
     container_name: cv-king-backend
@@ -30,9 +8,9 @@ services:
       - "3004:3003"
     environment:
       DB_TYPE: mssql
-      DB_HOST: sqlserver
-      DB_PORT: 1433
-      DB_USERNAME: sa
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
@@ -41,9 +19,8 @@ services:
       JWT_REFRESH_EXPIRATION_TIME: ${JWT_REFRESH_EXPIRATION_TIME}
       APP_PORT: 3003
       NODE_ENV: production
-    # Note: SQL Server healthcheck disabled for now - start manually after SQL Server ready
-    depends_on:
-      - sqlserver
+    # Note: SQL Server healthcheck disabled for remote connection
+    # depends_on removed since DB is remote
     networks:
       - cv-king-network
     healthcheck:

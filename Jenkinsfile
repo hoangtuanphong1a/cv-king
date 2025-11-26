@@ -12,11 +12,11 @@ SERVER_HOST = "206.189.88.56"
 SERVER_USER = "root"
 
 
-// SQL Server Configuration
+// SQL Server Configuration (Windows remote)
 SA_PASSWORD = "CvKing123!"
 DB_NAME = "JOB_DB"
 DB_USERNAME = "sa"
-DB_HOST = "sqlserver"
+DB_HOST = "206.189.88.56"
 DB_PORT = "1433"
 
 
@@ -127,9 +127,9 @@ BACKEND_IMAGE_NAME=${BACKEND_IMAGE_NAME}
 FRONTEND_IMAGE_NAME=${FRONTEND_IMAGE_NAME}
 DB_PASSWORD=${SA_PASSWORD}
 DB_NAME=${DB_NAME}
-DB_USERNAME=sa
-DB_HOST=sqlserver
-DB_PORT=1433
+DB_USERNAME=${DB_USERNAME}
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
 DB_TYPE=mssql
 JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
 JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
@@ -151,16 +151,6 @@ ENV
 
                         echo "Khởi động dịch vụ..."
                         docker compose --env-file .env up -d --force-recreate
-
-                        echo "Chờ SQL Server sẵn sàng (tối đa 3 phút)..."
-                        for i in {1..18}; do
-                            if docker compose --env-file .env ps | grep -q "(healthy)"; then
-                                echo "Tất cả dịch vụ đã healthy!"
-                                break
-                            fi
-                            echo "Đang chờ... (\$i/18)"
-                            sleep 10
-                        done
 
                         echo "Trạng thái cuối cùng:"
                         docker compose --env-file .env ps
