@@ -94,8 +94,7 @@ DOCKER_REGISTRY = "docker.io/hoangtuanphong"
                 echo "🚀 Bắt đầu deploy lên server..."
                 withCredentials([
                     usernamePassword(credentialsId: 'dockerhub-cred',
-                        usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'),
-                    string(credentialsId: 'db-conn', variable: 'DB_CONN')
+                        usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')
                 ]) {
                   sshagent (credentials: ['server-ssh-key']) {
                     sh '''
@@ -120,22 +119,37 @@ DOCKER_REGISTRY = "docker.io/hoangtuanphong"
                     # Export environment variables for remote shell
                     export DOCKER_USER="$DOCKER_USER"
                     export DOCKER_PASS="$DOCKER_PASS"
-                    export DB_CONN="$DB_CONN"
                     export BACKEND_IMAGE_NAME="$BACKEND_IMAGE_NAME"
                     export FRONTEND_IMAGE_NAME="$FRONTEND_IMAGE_NAME"
                     export SA_PASSWORD="$SA_PASSWORD"
                     export DB_NAME="$DB_NAME"
-                    export JWT_SECRET="$JWT_SECRET"
+                    export DB_USERNAME="$DB_USERNAME"
+                    export DB_HOST="$DB_HOST"
+                    export DB_PORT="$DB_PORT"
+                    export JWT_ACCESS_SECRET="$JWT_ACCESS_SECRET"
+                    export JWT_REFRESH_SECRET="$JWT_REFRESH_SECRET"
+                    export JWT_ACCESS_EXPIRATION_TIME="$JWT_ACCESS_EXPIRATION_TIME"
+                    export JWT_REFRESH_EXPIRATION_TIME="$JWT_REFRESH_EXPIRATION_TIME"
+                    export APP_PORT="3003"
+                    export NODE_ENV="production"
 
                     echo "➡️ Tạo file .env"
                     cat > .env <<EOF
-DB_CONNECTION_STRING=\$DB_CONN
 DOCKER_REGISTRY=docker.io/\$DOCKER_USER
 BACKEND_IMAGE_NAME=\$BACKEND_IMAGE_NAME
 FRONTEND_IMAGE_NAME=\$FRONTEND_IMAGE_NAME
-SA_PASSWORD=\$SA_PASSWORD
+DB_PASSWORD=\$SA_PASSWORD
 DB_NAME=\$DB_NAME
-JWT_SECRET=\$JWT_SECRET
+DB_USERNAME=\$DB_USERNAME
+DB_HOST=\$DB_HOST
+DB_PORT=\$DB_PORT
+DB_TYPE=mssql
+JWT_ACCESS_SECRET=\$JWT_ACCESS_SECRET
+JWT_REFRESH_SECRET=\$JWT_REFRESH_SECRET
+JWT_ACCESS_EXPIRATION_TIME=\$JWT_ACCESS_EXPIRATION_TIME
+JWT_REFRESH_EXPIRATION_TIME=\$JWT_REFRESH_EXPIRATION_TIME
+APP_PORT=\$APP_PORT
+NODE_ENV=\$NODE_ENV
 EOF
                     echo "📝 Nội dung file .env:"
                     cat .env
