@@ -14,14 +14,10 @@ services:
     networks:
       - cv-king-network
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          '/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$${DB_PASSWORD}" -Q ''SELECT 1''',
-        ]
+      test: ["/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${DB_PASSWORD}", "-Q", "SELECT 1"]
       interval: 30s
-      timeout: 15s
-      retries: 10
+      timeout: 10s
+      retries: 5
       start_period: 60s
     env_file:
       - .env
