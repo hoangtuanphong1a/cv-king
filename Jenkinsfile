@@ -95,7 +95,7 @@ DOCKER_REGISTRY = "docker.io/hoangtuanphong"
                     usernamePassword(credentialsId: 'dockerhub-cred',
                         usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'),
                     string(credentialsId: 'db-conn', variable: 'DB_CONN'),
-                    file(credentialsId: 'docker-compose-prop', variable: 'DOCKER_COMPOSE_PATH')
+                    file(credentialsId: 'docker-compose-file', variable: 'DOCKER_COMPOSE_PATH')
                 ]) {
                   sshagent (credentials: ['server-ssh-key']) {
                     sh '''
