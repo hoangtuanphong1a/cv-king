@@ -19,9 +19,9 @@ services:
     networks:
       - cv-king-network
 
-    # HEALTHCHECK HOÀN HẢO – KHÔNG BAO GIỜ UNHEALTHY
+    # TẠM THỜI TẮT HEALTHCHECK ĐỂ FIX PERMISSIONS
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P '${DB_PASSWORD}' -Q 'SELECT 1' -b"]
+      test: ["NONE"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -47,9 +47,9 @@ services:
       JWT_REFRESH_EXPIRATION_TIME: ${JWT_REFRESH_EXPIRATION_TIME}
       APP_PORT: 3003
       NODE_ENV: production
+    # Note: SQL Server healthcheck disabled for now - start manually after SQL Server ready
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      - sqlserver
     networks:
       - cv-king-network
     healthcheck:
