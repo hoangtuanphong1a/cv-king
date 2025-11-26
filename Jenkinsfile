@@ -95,7 +95,8 @@ DOCKER_REGISTRY = "docker.io/hoangtuanphong"
                 withCredentials([
                     usernamePassword(credentialsId: 'dockerhub-cred',
                         usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS'),
-                    file(credentialsId: 'docker-compose-prod', variable: 'DOCKER_COMPOSE_PATH')
+                    string(credentialsId: 'db-conn', variable: 'DB_CONN'),
+                    file(credentialsId: 'docker-compose-prop', variable: 'DOCKER_COMPOSE_PATH')
                 ]) {
                   sshagent (credentials: ['server-ssh-key']) {
                     sh '''
@@ -120,19 +121,12 @@ DOCKER_REGISTRY = "docker.io/hoangtuanphong"
                     # Export environment variables for remote shell
                     export DOCKER_USER="$DOCKER_USER"
                     export DOCKER_PASS="$DOCKER_PASS"
+                    export DB_CONN="$DB_CONN"
                     export BACKEND_IMAGE_NAME="$BACKEND_IMAGE_NAME"
                     export FRONTEND_IMAGE_NAME="$FRONTEND_IMAGE_NAME"
                     export SA_PASSWORD="$SA_PASSWORD"
                     export DB_NAME="$DB_NAME"
-                    export DB_USERNAME="$DB_USERNAME"
-                    export DB_HOST="$DB_HOST"
-                    export DB_PORT="$DB_PORT"
-                    export JWT_ACCESS_SECRET="$JWT_ACCESS_SECRET"
-                    export JWT_REFRESH_SECRET="$JWT_REFRESH_SECRET"
-                    export JWT_ACCESS_EXPIRATION_TIME="$JWT_ACCESS_EXPIRATION_TIME"
-                    export JWT_REFRESH_EXPIRATION_TIME="$JWT_REFRESH_EXPIRATION_TIME"
-                    export APP_PORT="3003"
-                    export NODE_ENV="production"
+                    export JWT_SECRET="$JWT_SECRET"
 
                     echo "➡️ Tạo file .env"
                     cat > .env <<EOF
@@ -184,8 +178,8 @@ EOF
                     echo "▶️ Khởi động lại toàn bộ services"
                     docker compose --env-file .env up -d
 
-                    echo "⏳ Đợi health checks (SQL Server cần 5 phút để health check)..."
-                    sleep 300
+                    echo "⏳ Đợi health checks..."
+                    sleep 30
 
                     echo "📊 Kiểm tra initial container status..."
                     docker ps
