@@ -20,8 +20,10 @@ export class DatabaseInitService implements OnModuleInit {
       await generator.ensureDatabase();
       console.log('✅ Database ensured successfully');
 
-      // Skip schema updates completely to avoid issues
-      console.log('⚠️  Skipping schema updates, proceeding with data seeding');
+      // Create/update schema
+      console.log('📋 Creating/updating database schema...');
+      await generator.updateSchema();
+      console.log('✅ Schema updated successfully');
 
       // Seed initial data
       await this.seedInitialData();
