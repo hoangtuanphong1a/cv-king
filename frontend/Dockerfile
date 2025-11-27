@@ -23,7 +23,7 @@ COPY package*.json ./
 COPY pnpm-lock.yaml ./
 
 # Install all dependencies (including dev dependencies for building)
-RUN pnpm install --frozen-lockfile --prefer-offline
+RUN pnpm install --prefer-offline
 
 # Copy source code
 COPY . .
