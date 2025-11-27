@@ -1,5 +1,5 @@
-# Use Node.js 18 Alpine for smaller image size
-FROM node:18-alpine AS base
+# Use Node.js 20 Alpine for smaller image size and compatibility
+FROM node:20-alpine AS base
 RUN apk add --no-cache yarn
 
 # Install dependencies
