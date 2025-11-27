@@ -34,7 +34,7 @@ export class AuthService {
 
     @InjectRepository(EmployerProfile)
     private readonly employerRepo: EntityRepository<EmployerProfile>
-  ) { }
+  ) {}
   private async signTokens(userId: string, email: string) {
     const userRoleEntities = await this.usersRoleService.findByUser(userId);
 
@@ -79,7 +79,7 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    return await this.em.transactional(async (em) => {
+    return await this.em.transactional(async em => {
       const exist = await this.usersService.findByEmail(dto.email);
       if (exist) throw new ConflictException('Email đã tồn tại');
 
@@ -117,7 +117,7 @@ export class AuthService {
   }
 
   async registerEmployee(dto: registerEmployeeDto) {
-    return await this.em.transactional(async (em) => {
+    return await this.em.transactional(async em => {
       const exist = await this.usersService.findByEmail(dto.email);
       if (exist) throw new ConflictException('Email đã tồn tại');
 
