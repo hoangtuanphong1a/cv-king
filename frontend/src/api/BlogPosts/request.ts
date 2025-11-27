@@ -100,14 +100,14 @@ export async function createBlogPostRequest(
   return BlogPostSchema.parse(parsedResp.data);
 }
 
-/** PUT /blog-posts/:id → BlogPost */
+/** PUT /blog-posts → BlogPost */
 export async function updateBlogPostRequest(params: {
   id: string;
   data: UpdateBlogPostFormData;
 }): Promise<BlogPost> {
   const { id, data } = params;
-  const body = UpdateBlogPostSchema.parse(data);
-  const res = await httpInstance.put(`/blog-posts/${id}`, body);
+  const body = UpdateBlogPostSchema.parse({ id, ...data });
+  const res = await httpInstance.put('/blog-posts', body);
   const SingleResp = ApiResponseSchema(BlogPostSchema);
   const parsedResp = SingleResp.parse(res.data);
   return BlogPostSchema.parse(parsedResp.data);

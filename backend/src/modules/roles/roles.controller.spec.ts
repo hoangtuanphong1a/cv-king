@@ -81,7 +81,10 @@ export class RolesController {
   async update(
     @Body(ValidationPipe) updateRoleDto: UpdateRoleDto
   ): Promise<ApiResponse<any>> {
-    const role = await this.rolesRepository.update(updateRoleDto);
+    const role = await this.rolesRepository.update(
+      updateRoleDto.id,
+      updateRoleDto
+    );
     return {
       status: 'success',
       message: `Role with ID ${updateRoleDto.id} updated successfully`,

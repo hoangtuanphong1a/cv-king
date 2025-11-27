@@ -37,7 +37,7 @@ import { EmployerProfile } from '@entities/employer-profile.entity';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_ACCESS_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_ACCESS_EXPIRATION_TIME'),
+          expiresIn: configService.get<string>('JWT_ACCESS_EXPIRATION_TIME') as any,
         },
       }),
       inject: [ConfigService],

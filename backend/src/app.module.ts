@@ -26,6 +26,7 @@ import { BlogCategoriesModule } from '@modules/blog-categories/blog-categories.m
 import { BlogViewsModule } from './modules/blog-views/blog-views.module';
 import { SavedBlogsModule } from './modules/saved-blogs/saved-blogs.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { DatabaseInitService } from './common/services/database-init.service';
 
 @Module({
   imports: [
@@ -63,6 +64,6 @@ import { AdminModule } from './modules/admin/admin.module';
     AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DatabaseInitService],
 })
 export class AppModule {}

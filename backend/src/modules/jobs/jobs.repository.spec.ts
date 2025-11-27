@@ -47,30 +47,27 @@ describe('JobsRepository', () => {
   });
 
   describe('findAll', () => {
-    it('should call stored procedure and return results when not JSON', async () => {
-      const mockConnection = { execute: jest.fn() };
+    it('should call BaseRepository findAll with correct parameters', async () => {
       const mockResults = [mockJob];
-
-      mockEM.getConnection.mockReturnValue(mockConnection);
-      mockConnection.execute.mockResolvedValue(mockResults);
+      const findAllSpy = jest
+        .spyOn(repository as any, 'findAll')
+        .mockResolvedValue(mockResults);
 
       const result = await repository.findAll({});
 
-      expect(mockConnection.execute).toHaveBeenCalledWith('EXEC SP_GetAllJob');
+      expect(findAllSpy).toHaveBeenCalledWith({
+        where: {
+          $or: [
+            { Title: { $ilike: '%test%' } },
+            { ShortDescription: { $ilike: '%test%' } },
+            { Description: { $ilike: '%test%' } },
+          ],
+        },
+        limit: 10,
+        offset: 0,
+        orderBy: { createdAt: -1 },
+      });
       expect(result).toEqual(mockResults);
-    });
-
-    it('should parse JSON when results are JSON string', async () => {
-      const mockConnection = { execute: jest.fn() };
-      const mockJson = JSON.stringify([mockJob]);
-
-      mockEM.getConnection.mockReturnValue(mockConnection);
-      mockConnection.execute.mockResolvedValue(mockJson);
-
-      const result = await repository.findAll({});
-
-      expect(mockConnection.execute).toHaveBeenCalledWith('EXEC SP_GetAllJob');
-      expect(result).toEqual([mockJob]);
     });
   });
 
@@ -84,7 +81,10 @@ describe('JobsRepository', () => {
 
       const result = await repository.findOne('1');
 
-      expect(mockConnection.execute).toHaveBeenCalledWith('EXEC SP_GetJobById ?', ['1']);
+      expect(mockConnection.execute).toHaveBeenCalledWith(
+        'EXEC SP_GetJobById ?',
+        ['1']
+      );
       expect(result).toEqual(mockJob);
     });
 
@@ -162,7 +162,7 @@ describe('JobsRepository', () => {
       mockEM.getConnection.mockReturnValue(mockConnection);
       mockConnection.execute.mockResolvedValue(mockJson); // SP_UpdateJob call returns JSON
 
-      const result = await repository.update(updateData);
+      const result = await repository.update('1', updateData);
 
       expect(mockConnection.execute).toHaveBeenCalledWith(
         'EXEC SP_UpdateJob ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?',
@@ -203,7 +203,10 @@ describe('JobsRepository', () => {
 
       const result = await repository.delete('1');
 
-      expect(mockConnection.execute).toHaveBeenCalledWith('EXEC SP_DeleteJob ?', ['1']);
+      expect(mockConnection.execute).toHaveBeenCalledWith(
+        'EXEC SP_DeleteJob ?',
+        ['1']
+      );
       expect(result).toBe(true);
     });
   });

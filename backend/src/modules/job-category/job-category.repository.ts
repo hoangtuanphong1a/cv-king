@@ -1,45 +1,50 @@
-import { EntityManager } from '@mikro-orm/core';
-import { Injectable } from '@nestjs/common';
+import { EntityManager, EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { JobCategory } from '../../entities/job-category.entity';
 import { CreateJobCategoryDto } from './dtos/CreateJobCategoryDto';
 import { UpdateJobCategoryDto } from './dtos/UpdateJobCategoryDto';
 
 @Injectable()
 export class JobCategoriesRepository {
-  constructor(private readonly em: EntityManager) {}
+  constructor(
+    @InjectRepository(JobCategory)
+    private readonly repo: EntityRepository<JobCategory>,
+    private readonly em: EntityManager
+  ) {}
 
-  async findAll(): Promise<any[]> {
-    const results = await this.em
-      .getConnection()
-      .execute('EXEC SP_GetAllJobCategories');
-    return results ?? [];
+  async findAll(): Promise<JobCategory[]> {
+    return this.repo.findAll({ orderBy: { createdAt: -1 } });
   }
 
-  async findOne(id: string): Promise<any | null> {
-    const result = await this.em
-      .getConnection()
-      .execute('EXEC SP_GetJobCategoryById ?', [id]);
-    return result?.[0] ?? null;
+  async findOne(id: string): Promise<JobCategory | null> {
+    return this.repo.findOne({ id });
   }
 
-  async create(createDto: CreateJobCategoryDto): Promise<any> {
-    const result = await this.em
-      .getConnection()
-      .execute('EXEC SP_InsertJobCategory ?', [createDto.Name]);
-    return result?.[0] ?? result;
+  async create(createDto: CreateJobCategoryDto): Promise<JobCategory> {
+    const category = this.repo.create({ Name: createDto.Name });
+    await this.em.persistAndFlush(category);
+    return category;
   }
 
-  async update(updateDto: UpdateJobCategoryDto): Promise<any | null> {
-    await this.em
-      .getConnection()
-      .execute('EXEC SP_UpdateJobCategory ?, ?', [
-        updateDto.id,
-        updateDto.Name,
-      ]);
-    return this.findOne(updateDto.id);
+  async update(updateDto: UpdateJobCategoryDto): Promise<JobCategory> {
+    const category = await this.findOne(updateDto.id);
+    if (!category) {
+      throw new NotFoundException('Job category not found');
+    }
+
+    this.repo.assign(category, { Name: updateDto.Name });
+    await this.em.flush();
+    return category;
   }
 
   async delete(id: string): Promise<boolean> {
-    await this.em.getConnection().execute('EXEC SP_DeleteJobCategory ?', [id]);
+    const category = await this.findOne(id);
+    if (!category) {
+      return false;
+    }
+
+    await this.em.removeAndFlush(category);
     return true;
   }
 }

@@ -4,7 +4,7 @@ import { Button } from "@/lib/button";
 import { Card , CardContent } from "../../common/card/card";
 import { Badge } from "@mui/material";
 import { MapPin , Users , Star} from "lucide-react";
-import { useApp } from "@/components/AppContext";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import company from "@/assets/images/employee.png";
 
@@ -25,7 +25,7 @@ interface Company {
 }
 
 const CompaniesSection = () => {
-    const {navigateTo} = useApp(); 
+    const router = useRouter();
 
  
 
@@ -122,28 +122,11 @@ const CompaniesSection = () => {
 }];
 
  const handleCompanyClick = (company: Company) => {
-    // Convert local Company to AppContext Company type
-    const companyData: import('@/types/company.type').Company = {
-      id: String(company.id),
-      name: company.name,
-      logo: typeof company.logo === 'string' ? company.logo : '',
-      description: company.description,
-      industry: company.industry,
-      size: company.employees,
-      website: company.website,
-      location: company.location,
-      founded: parseInt(company.founded) || 0,
-      rating: company.rating,
-      reviewCount: 0
-    };
-    navigateTo('company-detail', { company: companyData });
+    router.push(`/company/${company.id}`);
   };
 
   const handleViewJobs = (company: Company) => {
-    navigateTo('jobs', { 
-      search: company.name,
-      filters: { company: company.name }
-    });
+    router.push(`/job?company=${encodeURIComponent(company.name)}`);
   };
 
   return (
@@ -224,11 +207,11 @@ const CompaniesSection = () => {
         </div>
 
         <div className="text-center">
-          <Button 
-            variant="outline" 
-            size="lg" 
+          <Button
+            variant="outline"
+            size="lg"
             className="border-orange-600 text-orange-600 hover:bg-orange-50"
-            onClick={() => navigateTo('companies')}
+            onClick={() => router.push('/company')}
           >
             Explore All Companies
           </Button>

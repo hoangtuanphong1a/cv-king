@@ -19,7 +19,7 @@ export class JwtService {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
         expiresIn: this.configService.get<string>(
           'JWT_REFRESH_EXPIRATION_TIME'
-        ),
+        ) as any,
       }
     );
   }

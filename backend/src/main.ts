@@ -14,6 +14,16 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const orm = app.get(MikroORM);
+
+  // Check database connection on startup
+  try {
+    await orm.connect();
+    console.log('✅ Database connection established successfully');
+  } catch (error) {
+    console.error('❌ Failed to connect to database:', error);
+    process.exit(1);
+  }
+
   app.use(new MikroOrmMiddleware(orm).use.bind(new MikroOrmMiddleware(orm)));
 
   app.enableCors({

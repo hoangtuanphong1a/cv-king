@@ -25,6 +25,7 @@ describe('JobsController', () => {
   const mockJobsRepository = {
     create: jest.fn(),
     findAll: jest.fn(),
+    findFiltered: jest.fn(),
     findOne: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
@@ -56,6 +57,9 @@ describe('JobsController', () => {
         companyId: '1',
         title: 'Software Developer',
         description: 'Great job opportunity',
+        slug: 'software-developer',
+        skillIds: [],
+        tagIds: [],
       };
       const expectedResponse = {
         status: 'success',
@@ -82,11 +86,16 @@ describe('JobsController', () => {
         meta: { total: mockJobs.length },
       };
 
-      mockJobsRepository.findAll.mockResolvedValue(mockJobs);
+      mockJobsRepository.findFiltered.mockResolvedValue({
+        data: mockJobs,
+        total: mockJobs.length,
+      });
 
-      const result = await controller.findAll('key');
+      const result = await controller.findAll({ keyword: 'test' });
 
-      expect(mockJobsRepository.findAll).toHaveBeenCalledWith({ key: 'key' });
+      expect(mockJobsRepository.findFiltered).toHaveBeenCalledWith({
+        keyword: 'test',
+      });
       expect(result).toEqual(expectedResponse);
     });
   });
@@ -118,8 +127,13 @@ describe('JobsController', () => {
     it('should update a job', async () => {
       const updateJobDto: UpdateJobDto = {
         id: '1',
+        companyId: '1',
         title: 'Updated Job Title',
         description: 'Updated description',
+        slug: 'updated-job',
+        status: 'Active',
+        skillIds: [],
+        tagIds: [],
       };
       const expectedResponse = {
         status: 'success',

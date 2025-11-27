@@ -3,7 +3,7 @@ import { AuditableEntity } from './base/auditable_entity';
 
 @Entity({ tableName: 'BlogTags' })
 export class BlogTags extends AuditableEntity {
-  @Property({ type: 'nvarchar', length: 200, nullable: false, unique: true, fieldName: 'name' })
+  @Property({ type: 'varchar', length: 200, nullable: false, unique: true, fieldName: 'name' })
   name: string;
 
   // Đồng bộ với JobTag entity - thêm thuộc tính viết hoa

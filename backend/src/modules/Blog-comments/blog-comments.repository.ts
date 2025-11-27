@@ -1,49 +1,48 @@
-import { Injectable } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/core';
-import { CreateBlogCommentDto, UpdateBlogCommentDto } from './dto/blog-comments.dto';
-import extractJson, { extractJsonArray } from 'src/utils/extractJson';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { EntityManager, EntityRepository, FilterQuery } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { BlogComments } from '../../entities/blog-comment.entity';
+import {
+  CreateBlogCommentDto,
+  UpdateBlogCommentDto,
+} from './dto/blog-comments.dto';
 
 @Injectable()
 export class BlogCommentsRepository {
-  constructor(private readonly em: EntityManager) {}
+  constructor(
+    @InjectRepository(BlogComments)
+    private readonly repo: EntityRepository<BlogComments>,
+    private readonly em: EntityManager
+  ) {}
 
   /**
    * Find all comments with optional filtering
    * @param filters Optional filters for the query
    * @returns List of blog comments
    */
-  async findAll(filters?: { blogPostId?: string; userId?: string; isApproved?: boolean }): Promise<any[]> {
-    const result = await this.em.getConnection().execute('EXEC dbo.SP_GetAllBlogComments ?', [filters?.blogPostId || null]);
-    const allComments = extractJsonArray(result);
-
-    // Apply filters in memory since SP doesn't have filters
-    let filtered = allComments;
+  async findAll(filters?: {
+    blogPostId?: string;
+    userId?: string;
+    isApproved?: boolean;
+  }): Promise<BlogComments[]> {
+    const where: FilterQuery<BlogComments> = {};
 
     if (filters?.blogPostId) {
-      filtered = filtered.filter(c => c.blog_post_id === filters.blogPostId);
+      where.blogPostId = filters.blogPostId;
     }
 
     if (filters?.userId) {
-      filtered = filtered.filter(c => c.user_id === filters.userId);
+      where.userId = filters.userId;
     }
 
     if (filters?.isApproved !== undefined) {
-      filtered = filtered.filter(c => c.is_approved === filters.isApproved);
+      where.isApproved = filters.isApproved;
     }
 
-    // Map database field names to DTO field names for frontend
-    const mappedComments = filtered.map(comment => ({
-      id: comment.id,
-      blogPostId: comment.blog_post_id,
-      userId: comment.user_id,
-      guestName: comment.guest_name,
-      content: comment.content,
-      isApproved: comment.is_approved,
-      createdAt: comment.created_at,
-      updatedAt: comment.updated_at
-    }));
-
-    return mappedComments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return this.repo.findAll({
+      where,
+      orderBy: { createdAt: -1 },
+    });
   }
 
   /**
@@ -51,25 +50,8 @@ export class BlogCommentsRepository {
    * @param id Comment ID
    * @returns Blog comment
    */
-  async findById(id: string): Promise<any | null> {
-    const result = await this.em.getConnection().execute('EXEC dbo.SP_GetBlogCommentById ?', [id]);
-    const comment = extractJson(result[0]);
-
-    // Map database field names to DTO field names for frontend
-    if (comment) {
-      return {
-        id: comment.id,
-        blogPostId: comment.blog_post_id,
-        userId: comment.user_id,
-        guestName: comment.guest_name,
-        content: comment.content,
-        isApproved: comment.is_approved,
-        createdAt: comment.created_at,
-        updatedAt: comment.updated_at
-      };
-    }
-
-    return comment;
+  async findById(id: string): Promise<BlogComments | null> {
+    return this.repo.findOne({ id });
   }
 
   /**
@@ -77,47 +59,27 @@ export class BlogCommentsRepository {
    * @param data Comment data
    * @returns Created comment
    */
-  async create(data: CreateBlogCommentDto): Promise<any> {
-    // Validate that either UserId or GuestName is provided (SP requirement)
+  async create(data: CreateBlogCommentDto): Promise<BlogComments> {
+    // Validate that either UserId or GuestName is provided
     if (!data.UserId && !data.GuestName) {
       throw new Error('Either UserId or GuestName must be provided');
     }
 
-    // Map the data to match stored procedure parameter order
-    // SP_InsertBlogComment expects: @Content, @BlogPostId, @UserId, @GuestName
-    const result = await this.em.getConnection().execute(
-      'EXEC dbo.SP_InsertBlogComment ?,?,?,?',
-      [data.Content, data.BlogPostId, data.UserId || null, data.GuestName || null]
-    );
+    const comment = this.repo.create({
+      content: data.Content,
+      blogPostId: data.BlogPostId,
+      userId: data.UserId || undefined,
+      guestName: data.GuestName || undefined,
+      isApproved: false, // Default to not approved
+    });
 
-    const rawResult = result[0];
-    const comment = extractJson(rawResult);
+    await this.em.persistAndFlush(comment);
 
-    // Check if the stored procedure returned an error
-    if (comment && comment.error) {
-      throw new Error(comment.error);
-    }
-
-    // Handle ParentCommentId for reply comments (not supported in current SP)
-    if (data.ParentCommentId && comment) {
-      // For now, we'll just return the comment as-is since the SP doesn't support parent comments
-      // In a full implementation, you'd need to modify the SP to handle parent comments
-      console.warn('ParentCommentId is not supported in current stored procedure');
-    }
-
-    // Map database field names to DTO field names for frontend
-    if (comment) {
-      return {
-        id: comment.id,
-        blogPostId: comment.blog_post_id,
-        userId: comment.user_id,
-        guestName: comment.guest_name,
-        content: comment.content,
-        isApproved: comment.is_approved,
-        createdAt: comment.created_at,
-        updatedAt: comment.updated_at,
-        parentCommentId: data.ParentCommentId // Add this since SP doesn't return it
-      };
+    // Handle ParentCommentId for reply comments (not supported in current entity)
+    if (data.ParentCommentId) {
+      console.warn(
+        'ParentCommentId is not supported in current entity structure'
+      );
     }
 
     return comment;
@@ -129,27 +91,14 @@ export class BlogCommentsRepository {
    * @param data Updated data
    * @returns Updated comment
    */
-  async update(id: string, data: UpdateBlogCommentDto): Promise<any | null> {
-    const result = await this.em.getConnection().execute(
-      'EXEC dbo.SP_UpdateBlogComment ?,?',
-      [id, data.Content]
-    );
-    const comment = extractJson(result[0]);
-
-    // Map database field names to DTO field names for frontend
-    if (comment) {
-      return {
-        id: comment.id,
-        blogPostId: comment.blog_post_id,
-        userId: comment.user_id,
-        guestName: comment.guest_name,
-        content: comment.content,
-        isApproved: comment.is_approved,
-        createdAt: comment.created_at,
-        updatedAt: comment.updated_at
-      };
+  async update(id: string, data: UpdateBlogCommentDto): Promise<BlogComments> {
+    const comment = await this.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Blog comment not found');
     }
 
+    this.repo.assign(comment, { content: data.Content });
+    await this.em.flush();
     return comment;
   }
 
@@ -159,7 +108,12 @@ export class BlogCommentsRepository {
    * @returns True if deletion was successful
    */
   async delete(id: string): Promise<boolean> {
-    await this.em.getConnection().execute('EXEC dbo.SP_DeleteBlogComment ?', [id]);
+    const comment = await this.findById(id);
+    if (!comment) {
+      return false;
+    }
+
+    await this.em.removeAndFlush(comment);
     return true;
   }
 
@@ -168,27 +122,14 @@ export class BlogCommentsRepository {
    * @param id Comment ID
    * @returns Updated comment
    */
-  async approve(id: string): Promise<any | null> {
-    const result = await this.em.getConnection().execute(
-      'EXEC dbo.SP_SetBlogCommentApproval ?,?',
-      [id, 1]
-    );
-    const comment = extractJson(result[0]);
-
-    // Map database field names to DTO field names for frontend
-    if (comment) {
-      return {
-        id: comment.id,
-        blogPostId: comment.blog_post_id,
-        userId: comment.user_id,
-        guestName: comment.guest_name,
-        content: comment.content,
-        isApproved: comment.is_approved,
-        createdAt: comment.created_at,
-        updatedAt: comment.updated_at
-      };
+  async approve(id: string): Promise<BlogComments> {
+    const comment = await this.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Blog comment not found');
     }
 
+    this.repo.assign(comment, { isApproved: true });
+    await this.em.flush();
     return comment;
   }
 
@@ -197,27 +138,14 @@ export class BlogCommentsRepository {
    * @param id Comment ID
    * @returns Updated comment
    */
-  async reject(id: string): Promise<any | null> {
-    const result = await this.em.getConnection().execute(
-      'EXEC dbo.SP_SetBlogCommentApproval ?,?',
-      [id, 0]
-    );
-    const comment = extractJson(result[0]);
-
-    // Map database field names to DTO field names for frontend
-    if (comment) {
-      return {
-        id: comment.id,
-        blogPostId: comment.blog_post_id,
-        userId: comment.user_id,
-        guestName: comment.guest_name,
-        content: comment.content,
-        isApproved: comment.is_approved,
-        createdAt: comment.created_at,
-        updatedAt: comment.updated_at
-      };
+  async reject(id: string): Promise<BlogComments> {
+    const comment = await this.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Blog comment not found');
     }
 
+    this.repo.assign(comment, { isApproved: false });
+    await this.em.flush();
     return comment;
   }
 
@@ -227,9 +155,18 @@ export class BlogCommentsRepository {
    * @param approvedOnly Only return approved comments
    * @returns List of comments
    */
-  async getCommentsByBlogPost(blogPostId: string, approvedOnly: boolean = true): Promise<any[]> {
-    const comments = await this.findAll({ blogPostId, isApproved: approvedOnly ? true : undefined });
-    return comments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  async getCommentsByBlogPost(
+    blogPostId: string,
+    approvedOnly: boolean = true
+  ): Promise<any[]> {
+    const comments = await this.findAll({
+      blogPostId,
+      isApproved: approvedOnly ? true : undefined,
+    });
+    return comments.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
   }
 
   /**
@@ -238,7 +175,10 @@ export class BlogCommentsRepository {
    * @param approvedOnly Count only approved comments
    * @returns Comment count
    */
-  async getCommentCount(blogPostId: string, approvedOnly: boolean = true): Promise<number> {
+  async getCommentCount(
+    blogPostId: string,
+    approvedOnly: boolean = true
+  ): Promise<number> {
     const comments = await this.getCommentsByBlogPost(blogPostId, approvedOnly);
     return comments.length;
   }
@@ -249,8 +189,17 @@ export class BlogCommentsRepository {
    * @param approvedOnly Only return approved comments
    * @returns List of user's comments
    */
-  async getCommentsByUser(userId: string, approvedOnly: boolean = true): Promise<any[]> {
-    const comments = await this.findAll({ userId, isApproved: approvedOnly ? true : undefined });
-    return comments.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  async getCommentsByUser(
+    userId: string,
+    approvedOnly: boolean = true
+  ): Promise<any[]> {
+    const comments = await this.findAll({
+      userId,
+      isApproved: approvedOnly ? true : undefined,
+    });
+    return comments.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
   }
 }

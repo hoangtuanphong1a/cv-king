@@ -1,66 +1,97 @@
-import { EntityManager } from '@mikro-orm/core';
-import { Injectable } from '@nestjs/common';
+import { EntityManager, EntityRepository, FilterQuery } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { SavedBlog } from '../../entities/saved-blog.entity';
 import { SavedBlogQueryDto } from './dtos/saved-blog-query.dto';
-import extractJson, { extractJsonArray } from 'src/utils/extractJson';
 
 @Injectable()
 export class SavedBlogsRepository {
-  constructor(private readonly em: EntityManager) {}
+  constructor(
+    @InjectRepository(SavedBlog)
+    private readonly repo: EntityRepository<SavedBlog>,
+    private readonly em: EntityManager
+  ) {}
 
   async findAll(
     userId: string,
     query: SavedBlogQueryDto
-  ): Promise<{ data: any[]; total: number }> {
-    const { page = 1, limit = 10, sortBy = 'savedAt', sortOrder = 'DESC' } = query;
+  ): Promise<{ data: SavedBlog[]; total: number }> {
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'DESC',
+    } = query;
     const safePage = Math.max(Number(page || 1), 1);
     const safeLimit = Math.max(Math.min(Number(limit || 10), 100), 1);
     const offset = (safePage - 1) * safeLimit;
 
-    const raw = await this.em.getConnection().execute(
-      'EXEC SP_GetSavedBlogs ?, ?, ?, ?',
-      [userId, sortBy, sortOrder, safeLimit]
+    const [data, total] = await this.repo.findAndCount(
+      { userId },
+      {
+        limit: safeLimit,
+        offset,
+        orderBy: { [sortBy]: sortOrder === 'DESC' ? -1 : 1 },
+      }
     );
 
-    const row = Array.isArray(raw) ? raw[0] : null;
-    const jsonText = row?.json_result ?? null;
-
-    if (!jsonText) return { data: [], total: 0 };
-    const list = JSON.parse(jsonText) as any[];
-    const total = list?.[0]?.total ?? 0;
-
-    return { data: list ?? [], total };
+    return { data, total };
   }
 
-  async findOne(id: string, userId: string): Promise<any | null> {
-    const raw = await this.em
-      .getConnection()
-      .execute('EXEC SP_GetSavedBlogById ?, ?', [id, userId]);
-    if (!raw?.[0]) return null;
-    return extractJson(raw);
+  async findOne(id: string, userId: string): Promise<SavedBlog | null> {
+    return this.repo.findOne({ id, userId });
   }
 
-  async saveBlog(blogPostId: string, userId: string): Promise<any> {
-    const raw = await this.em
-      .getConnection()
-      .execute('EXEC SP_SaveBlog ?, ?', [blogPostId, userId]);
-    return extractJson(raw);
+  async saveBlog(blogPostId: string, userId: string): Promise<SavedBlog> {
+    // Check if already saved
+    const existing = await this.repo.findOne({
+      userId,
+      blogPostId,
+    });
+
+    if (existing) {
+      return existing; // Already saved
+    }
+
+    // Create new saved blog
+    const savedBlog = this.repo.create({
+      userId,
+      blogPostId,
+    });
+
+    await this.em.persistAndFlush(savedBlog);
+    return savedBlog;
   }
 
   async remove(id: string, userId: string): Promise<boolean> {
-    await this.em.getConnection().execute('EXEC SP_RemoveSavedBlog ?, ?', [id, userId]);
+    const savedBlog = await this.findOne(id, userId);
+    if (!savedBlog) {
+      return false;
+    }
+
+    await this.em.removeAndFlush(savedBlog);
     return true;
   }
 
   async removeByBlogId(blogPostId: string, userId: string): Promise<boolean> {
-    await this.em.getConnection().execute('EXEC SP_RemoveSavedBlogByBlogId ?, ?', [blogPostId, userId]);
+    const savedBlog = await this.repo.findOne({
+      blogPostId,
+      userId,
+    });
+
+    if (!savedBlog) {
+      return false;
+    }
+
+    await this.em.removeAndFlush(savedBlog);
     return true;
   }
 
   async isBlogSaved(blogPostId: string, userId: string): Promise<boolean> {
-    const raw = await this.em
-      .getConnection()
-      .execute('EXEC SP_IsBlogSaved ?, ?', [blogPostId, userId]);
-    const result = extractJson(raw);
-    return result?.isSaved || false;
+    const savedBlog = await this.repo.findOne({
+      blogPostId,
+      userId,
+    });
+    return !!savedBlog;
   }
 }

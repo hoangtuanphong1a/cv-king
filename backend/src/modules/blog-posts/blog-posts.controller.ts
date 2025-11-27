@@ -9,6 +9,7 @@ import {
   Query,
   ParseUUIDPipe,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { BlogPostsRepository } from './blog-posts.repository';
@@ -17,6 +18,9 @@ import { ApiResponse } from '@common/interfaces/api-response.interface';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { FilterBlogsDto } from './dto/filter-blogs.dto';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { Roles } from '@modules/auth/guards/roles.decorator';
 
 @ApiTags('blog-posts')
 @Controller('blog-posts')
@@ -49,7 +53,6 @@ export class BlogPostsController {
       query.keyword ||
       query.categoryId ||
       query.authorId ||
-
       query.tagIds ||
       query.status ||
       query.isPublished !== undefined ||
@@ -58,40 +61,20 @@ export class BlogPostsController {
       query.dateTo
     );
 
-    if (hasFilters) {
-      const result = await this.repo.findFiltered(query);
-      return {
-        status: 'success',
-        message: 'Filtered blog posts retrieved successfully',
-        data: result.data,
-        meta: {
-          count: result.total,
-          page: query.page ?? 1,
-          limit: query.limit ?? 10,
-          totalPages: Math.ceil((result.total || 0) / (query.limit ?? 10)),
-        },
-      };
-    } else {
-      // Không có filter đặc biệt -> dùng SP_GetFilteredBlogs với page/limit mặc định
-      const result = await this.repo.findFiltered({
+    const result = await this.repo.findFiltered(query);
+    return {
+      status: 'success',
+      message: hasFilters
+        ? 'Filtered blog posts retrieved successfully'
+        : 'All blog posts (paged)',
+      data: result.data,
+      meta: {
+        count: result.total,
         page: query.page ?? 1,
         limit: query.limit ?? 10,
-        sortBy: query.sortBy ?? 'created_at',
-        sortOrder: query.sortOrder ?? 'DESC',
-      } as FilterBlogsDto);
-
-      return {
-        status: 'success',
-        message: 'All blog posts (paged)',
-        data: result.data,
-        meta: {
-          count: result.total,
-          page: query.page ?? 1,
-          limit: query.limit ?? 10,
-          totalPages: Math.ceil((result.total || 0) / (query.limit ?? 10)),
-        },
-      };
-    }
+        totalPages: Math.ceil((result.total || 0) / (query.limit ?? 10)),
+      },
+    };
   }
 
   /**
@@ -121,9 +104,7 @@ export class BlogPostsController {
   @Get('slug/:slug')
   @ApiOperation({ summary: 'Get blog post by slug' })
   @ApiParam({ name: 'slug', description: 'Blog post slug' })
-  async findBySlug(
-    @Param('slug') slug: string
-  ): Promise<ApiResponse<any>> {
+  async findBySlug(@Param('slug') slug: string): Promise<ApiResponse<any>> {
     const data = await this.repo.findBySlug(slug);
     return {
       status: 'success',
@@ -138,6 +119,8 @@ export class BlogPostsController {
    * @returns Created blog post
    */
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Employer')
   @ApiOperation({ summary: 'Create a new blog post' })
   async create(
     @Body(ValidationPipe) dto: CreateBlogDto

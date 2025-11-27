@@ -4,10 +4,10 @@ import { AuditableEntity } from './base/auditable_entity';
 @Entity({ tableName: 'Companies' })
 export class Company extends AuditableEntity {
 
-  @Property({ type: 'nvarchar' })
+  @Property({ type: 'varchar' })
   name!: string;
 
-  @Property({ length: 300, nullable: true, type: 'nvarchar' })
+  @Property({ length: 300, nullable: true, type: 'varchar' })
   slug?: string;
 
   @Property({ length: 1000, nullable: true })
@@ -25,10 +25,10 @@ export class Company extends AuditableEntity {
   @Property({ length: 500, nullable: true })
   website?: string;
 
-  @Property({ length: 300, nullable: true, type: 'nvarchar' })
+  @Property({ length: 300, nullable: true, type: 'varchar' })
   location?: string;
 
-  @Property({ type: 'nvarchar', nullable: true })
+  @Property({ type: 'text', nullable: true })
   description?: string;
 
   @Property({ type: 'json', nullable: true })

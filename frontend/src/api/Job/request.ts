@@ -62,7 +62,7 @@ export async function getJobByIdRequest(id: string): Promise<Job> {
   return JobSchema.parse(raw);
 }
 
-// Cập nhật Job
+/** === UPDATE JOB (PUT /jobs) === */
 export async function updateJobRequest(
   id: string,
   data: Partial<{
@@ -89,7 +89,8 @@ export async function updateJobRequest(
     tagIds?: string[];
   }>
 ) {
-  // Chuẩn REST: PUT/PATCH /jobs/:id
-  const res = await instance.put(`/jobs/${id}`, data);
+  // Backend expects: PUT /jobs with body containing id and update data
+  const updateData = { id, ...data };
+  const res = await instance.put('/jobs', updateData);
   return getSuccessResponse(res);
 }

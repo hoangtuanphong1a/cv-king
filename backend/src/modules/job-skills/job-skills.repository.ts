@@ -1,24 +1,23 @@
-import { EntityManager } from '@mikro-orm/core';
-import { Injectable } from '@nestjs/common';
-import { Skill } from '@entities/skill.entity';
-import {
-  CreateSkillDto,
-  UpdateSkillDto,
-} from '@modules/job-skills/dtos/skill.dto';
+import { EntityManager, EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Skill } from '../../entities/skill.entity';
+import { CreateSkillDto, UpdateSkillDto } from './dtos/skill.dto';
 
 @Injectable()
 export class JobSkillsRepository {
-  constructor(private readonly em: EntityManager) {}
+  constructor(
+    @InjectRepository(Skill)
+    private readonly repo: EntityRepository<Skill>,
+    private readonly em: EntityManager
+  ) {}
 
   /**
    * Retrieve all skills
    * @returns List of all skills
    */
-  async findAll(): Promise<any> {
-    const results = await this.em
-      .getConnection()
-      .execute('EXEC SP_GetAllSkills');
-    return results ?? [];
+  async findAll(): Promise<Skill[]> {
+    return this.repo.findAll({ orderBy: { createdAt: -1 } });
   }
 
   /**
@@ -26,12 +25,8 @@ export class JobSkillsRepository {
    * @param id ID of the skill
    * @returns Skill or null if not found
    */
-  async findOne(id: string): Promise<any | null> {
-    const result = await this.em
-      .getConnection()
-      .execute('EXEC SP_GetSkillById ?', [id]);
-    const skill = result?.[0] ?? result;
-    return skill ?? null;
+  async findOne(id: string): Promise<Skill | null> {
+    return this.repo.findOne({ id });
   }
 
   /**
@@ -39,13 +34,10 @@ export class JobSkillsRepository {
    * @param createSkillDto Data to create the skill
    * @returns Created skill
    */
-  async create(createSkillDto: CreateSkillDto): Promise<any> {
-    const result = this.em
-      .getConnection()
-      .execute('EXEC SP_InsertSkill ?', [createSkillDto.Name]);
-
-    const newSkill = result?.[0] ?? result;
-    return newSkill as any;
+  async create(createSkillDto: CreateSkillDto): Promise<Skill> {
+    const skill = this.repo.create({ Name: createSkillDto.Name });
+    await this.em.persistAndFlush(skill);
+    return skill;
   }
 
   /**
@@ -53,14 +45,15 @@ export class JobSkillsRepository {
    * @param updateSkillDto Data to update the skill
    * @returns Updated skill or null if not found
    */
-  async update(updateSkillDto: UpdateSkillDto): Promise<any | null> {
-    await this.em
-      .getConnection()
-      .execute('EXEC SP_UpdateSkill ?, ?', [
-        updateSkillDto.id,
-        updateSkillDto.Name,
-      ]);
-    return this.findOne(updateSkillDto.id);
+  async update(updateSkillDto: UpdateSkillDto): Promise<Skill> {
+    const skill = await this.findOne(updateSkillDto.id);
+    if (!skill) {
+      throw new NotFoundException('Skill not found');
+    }
+
+    this.repo.assign(skill, { Name: updateSkillDto.Name });
+    await this.em.flush();
+    return skill;
   }
 
   /**
@@ -69,7 +62,12 @@ export class JobSkillsRepository {
    * @returns True if deletion is successful, false if not found
    */
   async delete(id: string): Promise<boolean> {
-    await this.em.getConnection().execute('EXEC SP_DeleteSkill ?', [id]);
+    const skill = await this.findOne(id);
+    if (!skill) {
+      return false;
+    }
+
+    await this.em.removeAndFlush(skill);
     return true;
   }
 }

@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
@@ -7,7 +7,6 @@ import { Bookmark, Clock, DollarSign, MapPin } from "lucide-react";
 import { Button } from "../../common/button/button";
 import { Card, CardContent } from "../../common/card/card";
 import { useRouter } from "next/navigation";
-import Link from "next/link"; // Thêm để tối ưu SEO
 import { Badge } from "@mui/material";
 import { StaticImageData } from "next/image";
 
@@ -142,13 +141,13 @@ const JobsSection = () => {
   }, []);
 
   const handleJobClick = (job: Job) => {
-    router.push(`/jobs-detail?job=${encodeURIComponent(JSON.stringify(job))}`);
+    router.push(`/job/${job.id}`);
   };
 
   const handleApplyClick = (e?: React.MouseEvent<HTMLButtonElement>, job?: Job) => {
     e?.stopPropagation();
     if (job) {
-      router.push(`/jobs-detail?job=${encodeURIComponent(JSON.stringify(job))}`);
+      router.push(`/job/${job.id}`);
     }
   };
 
@@ -252,15 +251,14 @@ const JobsSection = () => {
         </div>
 
         <div className="text-center">
-          <Link href="/job" passHref>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-orange-600 text-orange-600 hover:bg-orange-50"
-            >
-              View All Jobs
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            size="lg"
+            className="border-orange-600 text-orange-600 hover:bg-orange-50"
+            onClick={() => router.push('/job')}
+          >
+            View All Jobs
+          </Button>
         </div>
       </div>
     </section>

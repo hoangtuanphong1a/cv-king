@@ -12,6 +12,6 @@ export class BlogViews extends AuditableEntity {
   @Property({ type: 'string', nullable: true, fieldName: 'session_id' })
   sessionId?: string;
 
-  @Property({ type: 'datetime2', nullable: false, defaultRaw: 'SYSUTCDATETIME()', fieldName: 'viewed_at' })
+  @Property({ type: 'datetime', nullable: false, defaultRaw: 'NOW()', fieldName: 'viewed_at' })
   viewedAt: Date = new Date();
 }

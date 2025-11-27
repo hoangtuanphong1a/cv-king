@@ -119,16 +119,16 @@ const SearchSection: React.FC = () => {
                         Kham Pha ngay tai CVKING <ArrowRight className="w-4 h-4" />
                     </span>
                 </Button>
-                <Button 
+                <Button
                     component={Link}
-                    href="#"
-                    variant="outlined" 
+                    href="/user/profile"
+                    variant="outlined"
                     className="w-[244px] h-full ml-[30px] rounded-[50px]"
-                    sx={{ 
+                    sx={{
                         textTransform: 'none',
                         borderColor: '#DA5D1A',
                         color: '#DA5D1A',
-                        '&:hover': { 
+                        '&:hover': {
                             borderColor: '#C04D0F',
                             backgroundColor: 'rgba(218, 93, 26, 0.1)'
                         }

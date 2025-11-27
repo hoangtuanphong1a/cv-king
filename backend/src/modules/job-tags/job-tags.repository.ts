@@ -1,11 +1,14 @@
-import { EntityManager } from '@mikro-orm/core';
-import { Injectable } from '@nestjs/common';
-import { JobTag } from '@entities/job-tag.entity';
-import { CreateJobTagDto, UpdateJobTagDto } from '@modules/job-tags/dtos/job-tag.dto';
+import { EntityManager, EntityRepository } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { JobTag } from '../../entities/job-tag.entity';
+import { CreateJobTagDto, UpdateJobTagDto } from './dtos/job-tag.dto';
 
 @Injectable()
 export class JobTagsRepository {
   constructor(
+    @InjectRepository(JobTag)
+    private readonly repo: EntityRepository<JobTag>,
     private readonly em: EntityManager
   ) {}
 
@@ -13,9 +16,8 @@ export class JobTagsRepository {
    * Retrieve all job tags
    * @returns List of all job tags
    */
-  async findAll(): Promise<any> {
-    const results = await this.em.getConnection().execute('EXEC SP_GetAllJobTags');
-    return results ?? [];
+  async findAll(): Promise<JobTag[]> {
+    return this.repo.findAll({ orderBy: { createdAt: -1 } });
   }
 
   /**
@@ -23,12 +25,8 @@ export class JobTagsRepository {
    * @param id ID of the job tag
    * @returns JobTag or null if not found
    */
-  async findOne(id: string): Promise<any | null> {
-    const result = await this.em
-      .getConnection()
-      .execute('EXEC SP_GetJobTagById ?', [id]);
-    const jobTag = result?.[0] ?? result;
-    return jobTag ?? null;
+  async findOne(id: string): Promise<JobTag | null> {
+    return this.repo.findOne({ id });
   }
 
   /**
@@ -36,15 +34,10 @@ export class JobTagsRepository {
    * @param createJobTagDto Data to create the job tag
    * @returns Created job tag
    */
-  async create(createJobTagDto: CreateJobTagDto): Promise<any> {
-    const result = this.em
-      .getConnection()
-      .execute('EXEC SP_InsertJobTag ?', [
-        createJobTagDto.Name,
-      ]);
-
-    const newJobTag = result?.[0] ?? result;
-    return newJobTag as any;
+  async create(createJobTagDto: CreateJobTagDto): Promise<JobTag> {
+    const jobTag = this.repo.create({ Name: createJobTagDto.Name });
+    await this.em.persistAndFlush(jobTag);
+    return jobTag;
   }
 
   /**
@@ -52,14 +45,15 @@ export class JobTagsRepository {
    * @param updateJobTagDto Data to update the job tag
    * @returns Updated job tag or null if not found
    */
-  async update(updateJobTagDto: UpdateJobTagDto): Promise<any | null> {
-    await this.em
-      .getConnection()
-      .execute('EXEC SP_UpdateJobTag ?, ?', [
-        updateJobTagDto.id,
-        updateJobTagDto.Name,
-      ]);
-    return this.findOne(updateJobTagDto.id);
+  async update(updateJobTagDto: UpdateJobTagDto): Promise<JobTag> {
+    const jobTag = await this.findOne(updateJobTagDto.id);
+    if (!jobTag) {
+      throw new NotFoundException('Job tag not found');
+    }
+
+    this.repo.assign(jobTag, { Name: updateJobTagDto.Name });
+    await this.em.flush();
+    return jobTag;
   }
 
   /**
@@ -68,7 +62,12 @@ export class JobTagsRepository {
    * @returns True if deletion is successful, false if not found
    */
   async delete(id: string): Promise<boolean> {
-    await this.em.getConnection().execute('EXEC SP_DeleteJobTag ?', [id]);
+    const jobTag = await this.findOne(id);
+    if (!jobTag) {
+      return false;
+    }
+
+    await this.em.removeAndFlush(jobTag);
     return true;
   }
 }
