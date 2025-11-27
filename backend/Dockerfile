@@ -35,7 +35,7 @@ RUN yarn install --frozen-lockfile --production && yarn cache clean
 
 USER nodejs
 
-EXPOSE 3000
+EXPOSE 3003
 
 # Start the application
 CMD ["yarn", "start:prod"]
